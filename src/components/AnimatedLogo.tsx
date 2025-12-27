@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
-export default function AnimatedLogo({ className = "" }: { className?: string }) {
+export default function AnimatedLogo({ className = "", showText = true }: { className?: string; showText?: boolean }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -9,7 +9,7 @@ export default function AnimatedLogo({ className = "" }: { className?: string })
   }, []);
 
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
+    <div className={`flex items-center gap-2 sm:gap-3 ${className}`}>
       {/* Enhanced Animated Logo */}
       <div className="relative">
         {/* Outer glow effect */}
@@ -28,7 +28,7 @@ export default function AnimatedLogo({ className = "" }: { className?: string })
         
         {/* Main logo container */}
         <motion.div
-          className="relative w-12 h-12"
+          className="relative w-10 h-10 sm:w-12 sm:h-12"
           initial={{ scale: 0, rotate: -180 }}
           animate={mounted ? { scale: 1, rotate: 0 } : { scale: 0, rotate: -180 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
@@ -146,23 +146,25 @@ export default function AnimatedLogo({ className = "" }: { className?: string })
       </div>
       
       {/* Text with enhanced styling */}
-      <div className="flex flex-col">
-        <motion.span
-          className="font-display text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
-          initial={{ opacity: 0, x: -10 }}
-          animate={mounted ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          DevStackGlobe
-        </motion.span>
-        <motion.div
-          className="h-0.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full"
-          initial={{ scaleX: 0 }}
-          animate={mounted ? { scaleX: 1 } : { scaleX: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          style={{ transformOrigin: 'left' }}
-        />
-      </div>
+      {showText && (
+        <div className="flex flex-col">
+          <motion.span
+            className="font-display text-base sm:text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent whitespace-nowrap"
+            initial={{ opacity: 0, x: -10 }}
+            animate={mounted ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            DevStackGlobe
+          </motion.span>
+          <motion.div
+            className="h-0.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full"
+            initial={{ scaleX: 0 }}
+            animate={mounted ? { scaleX: 1 } : { scaleX: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            style={{ transformOrigin: 'left' }}
+          />
+        </div>
+      )}
     </div>
   );
 }

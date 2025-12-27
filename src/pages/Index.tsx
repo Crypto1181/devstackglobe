@@ -18,18 +18,21 @@ export default function Index() {
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none" />
 
       {/* Header */}
-      <header className="relative z-10 p-6">
-        <nav className="container mx-auto flex items-center justify-between">
-          <Link to="/">
-            <AnimatedLogo />
+      <header className="relative z-10 p-4 sm:p-6">
+        <nav className="container mx-auto flex items-center justify-between gap-2">
+          <Link to="/" className="flex-shrink-0">
+            <AnimatedLogo className="scale-90 sm:scale-100" />
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link to="/login">
-              <Button variant="ghost">Login</Button>
+              <Button variant="ghost" size="sm" className="text-xs sm:text-sm px-2 sm:px-4">
+                Login
+              </Button>
             </Link>
             <Link to="/signup">
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                Get Started
+              <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm px-3 sm:px-4">
+                <span className="hidden sm:inline">Get Started</span>
+                <span className="sm:hidden">Start</span>
               </Button>
             </Link>
           </div>

@@ -36,11 +36,11 @@ export default function Navbar() {
       animate={{ y: 0 }}
       className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-border/50"
     >
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+        <div className="flex items-center justify-between gap-2">
           {/* Logo */}
-          <Link to="/home">
-            <AnimatedLogo />
+          <Link to="/home" className="flex-shrink-0">
+            <AnimatedLogo className="scale-90 sm:scale-100" />
           </Link>
 
           {/* Desktop Navigation */}
@@ -61,9 +61,9 @@ export default function Navbar() {
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center gap-3">
-            <Link to="/cart" className="relative p-2 rounded-lg hover:bg-muted/50 transition-colors">
-              <ShoppingCart className="w-5 h-5" />
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            <Link to="/cart" className="relative p-1.5 sm:p-2 rounded-lg hover:bg-muted/50 transition-colors">
+              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
               {totalItems > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
@@ -105,10 +105,10 @@ export default function Navbar() {
             </Link>
             )}
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-muted/50"
+              className="md:hidden p-1.5 sm:p-2 rounded-lg hover:bg-muted/50"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
           </div>
         </div>
