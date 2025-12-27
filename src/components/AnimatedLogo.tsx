@@ -1,81 +1,165 @@
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 export default function AnimatedLogo({ className = "" }: { className?: string }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      {/* Animated Globe */}
+      {/* Enhanced Animated Logo */}
       <div className="relative">
-        {/* Outer glow */}
-        <div className="absolute inset-0 bg-primary/30 blur-xl rounded-full animate-pulse" />
-        
-        {/* Globe container */}
+        {/* Outer glow effect */}
         <motion.div
-          className="relative w-10 h-10"
-          animate={{ rotateY: 360 }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "linear"
+          className="absolute inset-0 bg-primary/20 blur-2xl rounded-full"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
           }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        
+        {/* Main logo container */}
+        <motion.div
+          className="relative w-12 h-12"
+          initial={{ scale: 0, rotate: -180 }}
+          animate={mounted ? { scale: 1, rotate: 0 } : { scale: 0, rotate: -180 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          {/* Globe sphere */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary via-primary/80 to-primary/40 shadow-lg">
-            {/* Latitude lines */}
-            <div className="absolute inset-1 rounded-full border border-primary-foreground/20" />
-            <div className="absolute inset-2 rounded-full border border-primary-foreground/15" />
-            <div className="absolute inset-3 rounded-full border border-primary-foreground/10" />
-            
-            {/* Longitude line - vertical */}
-            <motion.div 
-              className="absolute left-1/2 top-0 bottom-0 w-px bg-primary-foreground/30 -translate-x-1/2"
+          {/* Globe with tech layers */}
+          <div className="relative w-full h-full">
+            {/* Outer ring with code brackets */}
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-primary/60"
+              animate={{ rotate: 360 }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+            >
+              {/* Code bracket decorations */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary text-xs font-bold">
+                {'{'}
+              </div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 text-primary text-xs font-bold">
+                {'}'}
+              </div>
+            </motion.div>
+
+            {/* Globe sphere */}
+            <motion.div
+              className="absolute inset-2 rounded-full bg-gradient-to-br from-primary via-primary/90 to-accent shadow-2xl"
+              animate={{ rotateY: 360 }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: "linear"
+              }}
               style={{ transformStyle: 'preserve-3d' }}
+            >
+              {/* Latitude lines */}
+              <div className="absolute inset-1 rounded-full border border-white/20" />
+              <div className="absolute inset-2 rounded-full border border-white/15" />
+              
+              {/* Longitude lines */}
+              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/20 -translate-x-1/2" />
+              <div className="absolute top-1/2 left-0 right-0 h-px bg-white/20 -translate-y-1/2" />
+              
+              {/* Tech grid pattern */}
+              <div className="absolute inset-0 rounded-full opacity-20">
+                <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-white rounded-full" />
+                <div className="absolute top-1/4 right-1/4 w-1 h-1 bg-white rounded-full" />
+                <div className="absolute bottom-1/4 left-1/4 w-1 h-1 bg-white rounded-full" />
+                <div className="absolute bottom-1/4 right-1/4 w-1 h-1 bg-white rounded-full" />
+              </div>
+              
+              {/* Highlight */}
+              <motion.div
+                className="absolute top-2 left-3 w-2 h-2 rounded-full bg-white/60 blur-sm"
+                animate={{
+                  opacity: [0.4, 0.8, 0.4],
+                  scale: [1, 1.2, 1]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </motion.div>
+            
+            {/* Orbiting tech elements */}
+            <motion.div
+              className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-accent rounded-full shadow-lg"
+              style={{ transformOrigin: '0 20px' }}
+              animate={{ rotate: 360 }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "linear"
+              }}
             />
             
-            {/* Longitude line - horizontal */}
-            <div className="absolute top-1/2 left-0 right-0 h-px bg-primary-foreground/30 -translate-y-1/2" />
-            
-            {/* Highlight */}
-            <div className="absolute top-1 left-2 w-3 h-3 rounded-full bg-white/40 blur-sm" />
+            {/* Stack layers indicator */}
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-1 h-1 rounded-full bg-primary"
+                  animate={{
+                    opacity: [0.3, 1, 0.3],
+                    scale: [0.8, 1.2, 0.8]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    delay: i * 0.2,
+                    ease: "easeInOut"
+                  }}
+                />
+              ))}
+            </div>
           </div>
-          
-          {/* Orbiting dot */}
-          <motion.div
-            className="absolute w-2 h-2 bg-accent rounded-full shadow-lg"
-            style={{ top: '50%', left: '50%' }}
-            animate={{
-              x: [0, 20, 0, -20, 0],
-              y: [-20, 0, 20, 0, -20],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
         </motion.div>
         
-        {/* Ring around globe */}
+        {/* Pulsing ring */}
         <motion.div
-          className="absolute inset-[-4px] rounded-full border-2 border-primary/40 border-dashed"
-          animate={{ rotate: -360 }}
+          className="absolute inset-[-6px] rounded-full border border-primary/30"
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.6, 0.3]
+          }}
           transition={{
-            duration: 12,
+            duration: 2,
             repeat: Infinity,
-            ease: "linear"
+            ease: "easeInOut"
           }}
         />
       </div>
       
-      {/* Text */}
+      {/* Text with enhanced styling */}
       <div className="flex flex-col">
-        <span className="font-display text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+        <motion.span
+          className="font-display text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
+          initial={{ opacity: 0, x: -10 }}
+          animate={mounted ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
           DevStackGlobe
-        </span>
-        <motion.div 
-          className="h-0.5 bg-gradient-to-r from-primary to-accent rounded-full"
+        </motion.span>
+        <motion.div
+          className="h-0.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full"
           initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
+          animate={mounted ? { scaleX: 1 } : { scaleX: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
           style={{ transformOrigin: 'left' }}
         />
       </div>
