@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - DevStackGlobe</title>
+    
+    <!-- Loading Indicator -->
+    <div id="loading" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0a0a; display: flex; align-items: center; justify-content: center; z-index: 9999;">
+        <div style="text-align: center; color: #e5e5e5;">
+            <div style="font-size: 24px; margin-bottom: 20px;">Loading Admin Panel...</div>
+            <div id="loading-status" style="font-size: 14px; color: #999;">Initializing...</div>
+        </div>
+    </div>
+    
+    <!-- Tailwind CSS CDN -->
+    <script>
+        function updateStatus(msg) {
+            const status = document.getElementById('loading-status');
+            if (status) status.textContent = msg;
+            console.log('[Admin Panel]', msg);
+        }
+        updateStatus('Loading Tailwind CSS...');
+    </script>
+    <script src="https://cdn.tailwindcss.com" onerror="updateStatus('Error loading Tailwind CSS')"></script>
+    
+    <!-- React and ReactDOM -->
+    <script>
+        updateStatus('Loading React...');
+    </script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js" 
+        onload="updateStatus('React loaded'); window.ReactLoaded = true;"
+        onerror="updateStatus('Error loading React'); console.error('Failed to load React')"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+        onload="updateStatus('ReactDOM loaded'); window.ReactDOMLoaded = true;"
+        onerror="updateStatus('Error loading ReactDOM'); console.error('Failed to load ReactDOM')"></script>
+    
+    <!-- Babel Standalone for JSX -->
+    <script>
+        updateStatus('Loading Babel...');
+    </script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"
+        onload="updateStatus('Babel loaded'); window.BabelLoaded = true;"
+        onerror="updateStatus('Error loading Babel'); console.error('Failed to load Babel')"></script>
+    
+    <!-- Supabase JS -->
+    <script>
+        updateStatus('Loading Supabase...');
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"
+        onload="updateStatus('Supabase loaded'); window.SupabaseLoaded = true;"
+        onerror="updateStatus('Error loading Supabase'); console.error('Failed to load Supabase')"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: #0a0a0a;
+            color: #e5e5e5;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        button {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        input, textarea, select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e5e5e5;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .tab-button {
+            padding: 10px 20px;
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            color: #999;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .tab-button.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Wait for all libraries to load
+        function checkLibraries() {
+            if (!window.React || !window.ReactDOM || !window.Babel || !window.supabase) {
+                setTimeout(checkLibraries, 100);
+                return;
+            }
+            
+            updateStatus('All libraries loaded. Initializing app...');
+            
+            // Hide loading screen after a short delay
+            setTimeout(() => {
+                const loading = document.getElementById('loading');
+                if (loading) loading.style.display = 'none';
+            }, 500);
+            
+            initializeApp();
+        }
+        
+        function initializeApp() {
+            try {
+                const { useState, useEffect } = React;
+                
+                // Supabase Configuration
+                const SUPABASE_URL = 'https://ymzepgivjjdmytcshnrx.supabase.co';
+                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltemVwZ2l2ampkbXl0Y3NobnJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY1NDk4MDcsImV4cCI6MjA4MjEyNTgwN30.eHqBxQ3YuRkXvsI8RidjDZvGwFcfSxAhSKrYKg0u3B0';
+                
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                
+                console.log('[Admin Panel] Supabase initialized');
+        
+                // Toast Component
+        function Toast({ message, type, onClose }) {
+            useEffect(() => {
+                const timer = setTimeout(() => {
+                    onClose();
+                }, 3000);
+                return () => clearTimeout(timer);
+            }, [onClose]);
+            
+            return (
+                <div className={`toast ${type === 'error' ? 'border-red-500' : 'border-green-500'}`}>
+                    <div className="font-semibold">{message.title}</div>
+                    <div className="text-sm text-gray-400 mt-1">{message.description}</div>
+                </div>
+            );
+        }
+        
+        // Login Component
+        function Login({ onLogin }) {
+            const [email, setEmail] = useState('admin1181@gmail.com');
+            const [password, setPassword] = useState('Devstackglobe');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+            
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+                
+                const { data, error: loginError } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+                
+                setLoading(false);
+                
+                if (loginError) {
+                    setError(loginError.message);
+                } else {
+                    onLogin(data.user);
+                }
+            };
+            
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4">
+                    <div className="glass-card p-8 max-w-md w-full">
+                        <h1 className="text-3xl font-bold text-center mb-2">Admin Login</h1>
+                        <p className="text-gray-400 text-center mb-6">Sign in to access admin panel</p>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            {error && (
+                                <div className="bg-red-500/20 border border-red-500 text-red-400 p-3 rounded">
+                                    {error}
+                                </div>
+                            )}
+                            
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Email</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg"
+                                    required
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Password</label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg"
+                                    required
+                                />
+                            </div>
+                            
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg disabled:opacity-50"
+                            >
+                                {loading ? 'Signing in...' : 'Sign In'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Admin Panel Component
+        function AdminPanel({ user, onLogout }) {
+            const [activeTab, setActiveTab] = useState('portfolio');
+            const [toast, setToast] = useState(null);
+            
+            // Portfolio state
+            const [portfolios, setPortfolios] = useState([]);
+            const [portfolioForm, setPortfolioForm] = useState({
+                type: '',
+                name: '',
+                description: '',
+                programming_language: '',
+                live_demo_url: '',
+                image: ''
+            });
+            const [editingPortfolio, setEditingPortfolio] = useState(null);
+            
+            // Template state
+            const [templates, setTemplates] = useState([]);
+            const [templateForm, setTemplateForm] = useState({
+                name: '',
+                description: '',
+                programming_language: '',
+                price: 0,
+                review: 0,
+                image: '',
+                images: [],
+                reviews: []
+            });
+            const [editingTemplate, setEditingTemplate] = useState(null);
+            const [newReview, setNewReview] = useState({ reviewer_name: '', review_text: '', rating: 5 });
+            
+            // Marketplace state
+            const [marketplaceItems, setMarketplaceItems] = useState([]);
+            const [marketplaceForm, setMarketplaceForm] = useState({
+                name: '',
+                description: '',
+                price: 0,
+                review: 0,
+                type: 'plugin',
+                image: '',
+                images: [],
+                reviews: []
+            });
+            const [editingMarketplace, setEditingMarketplace] = useState(null);
+            const [newMarketplaceReview, setNewMarketplaceReview] = useState({ reviewer_name: '', review_text: '', rating: 5 });
+            
+            const showToast = (title, description, type = 'success') => {
+                setToast({ title, description, type });
+            };
+            
+            // Load data
+            useEffect(() => {
+                loadPortfolios();
+                loadTemplates();
+                loadMarketplaceItems();
+            }, []);
+            
+            // Portfolio functions
+            const loadPortfolios = async () => {
+                const { data, error } = await supabase.from('portfolio').select('*').order('created_at', { ascending: false });
+                if (error) {
+                    showToast('Error', 'Failed to load portfolios', 'error');
+                } else {
+                    setPortfolios(data || []);
+                }
+            };
+            
+            const handlePortfolioSubmit = async (e) => {
+                e.preventDefault();
+                if (editingPortfolio) {
+                    const { error } = await supabase
+                        .from('portfolio')
+                        .update({ ...portfolioForm, updated_at: new Date().toISOString() })
+                        .eq('id', editingPortfolio);
+                    if (error) {
+                        showToast('Error', 'Failed to update portfolio', 'error');
+                    } else {
+                        showToast('Success', 'Portfolio updated successfully');
+                        setEditingPortfolio(null);
+                        resetPortfolioForm();
+                        loadPortfolios();
+                    }
+                } else {
+                    const { error } = await supabase.from('portfolio').insert([portfolioForm]);
+                    if (error) {
+                        showToast('Error', 'Failed to create portfolio', 'error');
+                    } else {
+                        showToast('Success', 'Portfolio created successfully');
+                        resetPortfolioForm();
+                        loadPortfolios();
+                    }
+                }
+            };
+            
+            const handlePortfolioEdit = (portfolio) => {
+                setPortfolioForm(portfolio);
+                setEditingPortfolio(portfolio.id);
+            };
+            
+            const handlePortfolioDelete = async (id) => {
+                if (!confirm('Are you sure you want to delete this portfolio?')) return;
+                const { error } = await supabase.from('portfolio').delete().eq('id', id);
+                if (error) {
+                    showToast('Error', 'Failed to delete portfolio', 'error');
+                } else {
+                    showToast('Success', 'Portfolio deleted successfully');
+                    loadPortfolios();
+                }
+            };
+            
+            const resetPortfolioForm = () => {
+                setPortfolioForm({ type: '', name: '', description: '', programming_language: '', live_demo_url: '', image: '' });
+                setEditingPortfolio(null);
+            };
+            
+            // Template functions
+            const loadTemplates = async () => {
+                const { data, error } = await supabase.from('templates').select('*').order('created_at', { ascending: false });
+                if (error) {
+                    showToast('Error', 'Failed to load templates', 'error');
+                } else {
+                    setTemplates(data || []);
+                }
+            };
+            
+            const handleTemplateSubmit = async (e) => {
+                e.preventDefault();
+                const submitData = {
+                    ...templateForm,
+                    images: templateForm.images || [],
+                    reviews: templateForm.reviews || [],
+                    updated_at: new Date().toISOString()
+                };
+                
+                if (editingTemplate) {
+                    const { error } = await supabase
+                        .from('templates')
+                        .update(submitData)
+                        .eq('id', editingTemplate);
+                    if (error) {
+                        showToast('Error', 'Failed to update template', 'error');
+                    } else {
+                        showToast('Success', 'Template updated successfully');
+                        setEditingTemplate(null);
+                        resetTemplateForm();
+                        loadTemplates();
+                    }
+                } else {
+                    const { error } = await supabase.from('templates').insert([submitData]);
+                    if (error) {
+                        showToast('Error', 'Failed to create template', 'error');
+                    } else {
+                        showToast('Success', 'Template created successfully');
+                        resetTemplateForm();
+                        loadTemplates();
+                    }
+                }
+            };
+            
+            const handleTemplateEdit = (template) => {
+                setTemplateForm({
+                    ...template,
+                    images: Array.isArray(template.images) ? template.images : (template.images ? [template.images] : []),
+                    reviews: Array.isArray(template.reviews) ? template.reviews : []
+                });
+                setEditingTemplate(template.id);
+            };
+            
+            const handleTemplateDelete = async (id) => {
+                if (!confirm('Are you sure you want to delete this template?')) return;
+                const { error } = await supabase.from('templates').delete().eq('id', id);
+                if (error) {
+                    showToast('Error', 'Failed to delete template', 'error');
+                } else {
+                    showToast('Success', 'Template deleted successfully');
+                    loadTemplates();
+                }
+            };
+            
+            const resetTemplateForm = () => {
+                setTemplateForm({ name: '', description: '', programming_language: '', price: 0, review: 0, image: '', images: [], reviews: [] });
+                setEditingTemplate(null);
+                setNewReview({ reviewer_name: '', review_text: '', rating: 5 });
+            };
+
+            const handleImageUpload = async (e, index) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const filePath = `templates/${fileName}`;
+
+                try {
+                    const { error: uploadError } = await supabase.storage
+                        .from('images')
+                        .upload(filePath, file);
+
+                    if (uploadError) throw uploadError;
+
+                    const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+                    const imageUrl = data.publicUrl;
+
+                    const currentImages = templateForm.images || [];
+                    if (index !== undefined) {
+                        const updated = [...currentImages];
+                        updated[index] = imageUrl;
+                        setTemplateForm({ ...templateForm, images: updated });
+                    } else {
+                        setTemplateForm({ ...templateForm, images: [...currentImages, imageUrl] });
+                    }
+                } catch (error) {
+                    showToast('Error', error.message || 'Failed to upload image', 'error');
+                }
+            };
+
+            const handleImageUrlAdd = (url) => {
+                if (!url) return;
+                const currentImages = templateForm.images || [];
+                setTemplateForm({ ...templateForm, images: [...currentImages, url] });
+            };
+
+            const handleImageRemove = (index) => {
+                const currentImages = templateForm.images || [];
+                setTemplateForm({ ...templateForm, images: currentImages.filter((_, i) => i !== index) });
+            };
+
+            const handleAddReview = () => {
+                if (!newReview.reviewer_name || !newReview.review_text) {
+                    showToast('Error', 'Please fill in reviewer name and review text', 'error');
+                    return;
+                }
+                const currentReviews = templateForm.reviews || [];
+                setTemplateForm({
+                    ...templateForm,
+                    reviews: [...currentReviews, { ...newReview, created_at: new Date().toISOString() }]
+                });
+                setNewReview({ reviewer_name: '', review_text: '', rating: 5 });
+            };
+
+            const handleRemoveReview = (index) => {
+                const currentReviews = templateForm.reviews || [];
+                setTemplateForm({ ...templateForm, reviews: currentReviews.filter((_, i) => i !== index) });
+            };
+            
+            // Marketplace functions
+            const loadMarketplaceItems = async () => {
+                const { data, error } = await supabase.from('marketplace').select('*').order('created_at', { ascending: false });
+                if (error) {
+                    showToast('Error', 'Failed to load marketplace items', 'error');
+                } else {
+                    setMarketplaceItems(data || []);
+                }
+            };
+            
+            const handleMarketplaceSubmit = async (e) => {
+                e.preventDefault();
+                const submitData = {
+                    ...marketplaceForm,
+                    images: marketplaceForm.images || [],
+                    reviews: marketplaceForm.reviews || [],
+                    updated_at: new Date().toISOString()
+                };
+                
+                if (editingMarketplace) {
+                    const { error } = await supabase
+                        .from('marketplace')
+                        .update(submitData)
+                        .eq('id', editingMarketplace);
+                    if (error) {
+                        showToast('Error', 'Failed to update marketplace item', 'error');
+                    } else {
+                        showToast('Success', 'Marketplace item updated successfully');
+                        setEditingMarketplace(null);
+                        resetMarketplaceForm();
+                        loadMarketplaceItems();
+                    }
+                } else {
+                    const { error } = await supabase.from('marketplace').insert([submitData]);
+                    if (error) {
+                        showToast('Error', 'Failed to create marketplace item', 'error');
+                    } else {
+                        showToast('Success', 'Marketplace item created successfully');
+                        resetMarketplaceForm();
+                        loadMarketplaceItems();
+                    }
+                }
+            };
+            
+            const handleMarketplaceEdit = (item) => {
+                setMarketplaceForm({
+                    ...item,
+                    images: Array.isArray(item.images) ? item.images : (item.images ? [item.images] : []),
+                    reviews: Array.isArray(item.reviews) ? item.reviews : []
+                });
+                setEditingMarketplace(item.id);
+            };
+            
+            const handleMarketplaceDelete = async (id) => {
+                if (!confirm('Are you sure you want to delete this marketplace item?')) return;
+                const { error } = await supabase.from('marketplace').delete().eq('id', id);
+                if (error) {
+                    showToast('Error', 'Failed to delete marketplace item', 'error');
+                } else {
+                    showToast('Success', 'Marketplace item deleted successfully');
+                    loadMarketplaceItems();
+                }
+            };
+            
+            const resetMarketplaceForm = () => {
+                setMarketplaceForm({ name: '', description: '', price: 0, review: 0, type: 'plugin', image: '', images: [], reviews: [] });
+                setEditingMarketplace(null);
+                setNewMarketplaceReview({ reviewer_name: '', review_text: '', rating: 5 });
+            };
+
+            const handleMarketplaceImageUpload = async (e, index) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const filePath = `marketplace/${fileName}`;
+
+                try {
+                    const { error: uploadError } = await supabase.storage
+                        .from('images')
+                        .upload(filePath, file);
+
+                    if (uploadError) throw uploadError;
+
+                    const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+                    const imageUrl = data.publicUrl;
+
+                    const currentImages = marketplaceForm.images || [];
+                    if (index !== undefined) {
+                        const updated = [...currentImages];
+                        updated[index] = imageUrl;
+                        setMarketplaceForm({ ...marketplaceForm, images: updated });
+                    } else {
+                        setMarketplaceForm({ ...marketplaceForm, images: [...currentImages, imageUrl] });
+                    }
+                } catch (error) {
+                    showToast('Error', error.message || 'Failed to upload image', 'error');
+                }
+            };
+
+            const handleMarketplaceImageUrlAdd = (url) => {
+                if (!url) return;
+                const currentImages = marketplaceForm.images || [];
+                setMarketplaceForm({ ...marketplaceForm, images: [...currentImages, url] });
+            };
+
+            const handleMarketplaceImageRemove = (index) => {
+                const currentImages = marketplaceForm.images || [];
+                setMarketplaceForm({ ...marketplaceForm, images: currentImages.filter((_, i) => i !== index) });
+            };
+
+            const handleAddMarketplaceReview = () => {
+                if (!newMarketplaceReview.reviewer_name || !newMarketplaceReview.review_text) {
+                    showToast('Error', 'Please fill in reviewer name and review text', 'error');
+                    return;
+                }
+                const currentReviews = marketplaceForm.reviews || [];
+                setMarketplaceForm({
+                    ...marketplaceForm,
+                    reviews: [...currentReviews, { ...newMarketplaceReview, created_at: new Date().toISOString() }]
+                });
+                setNewMarketplaceReview({ reviewer_name: '', review_text: '', rating: 5 });
+            };
+
+            const handleRemoveMarketplaceReview = (index) => {
+                const currentReviews = marketplaceForm.reviews || [];
+                setMarketplaceForm({ ...marketplaceForm, reviews: currentReviews.filter((_, i) => i !== index) });
+            };
+            
+            return (
+                <div className="min-h-screen py-12 px-4">
+                    <div className="max-w-7xl mx-auto">
+                        {/* Header */}
+                        <div className="mb-8 flex justify-between items-center">
+                            <div>
+                                <h1 className="text-4xl md:text-5xl font-bold mb-2">
+                                    Admin <span className="text-gradient">Panel</span>
+                                </h1>
+                                <p className="text-gray-400">Manage portfolios, templates, and marketplace items</p>
+                            </div>
+                            <button
+                                onClick={onLogout}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                        
+                        {/* Tabs */}
+                        <div className="mb-8 flex gap-2">
+                            <button
+                                onClick={() => setActiveTab('portfolio')}
+                                className={`tab-button ${activeTab === 'portfolio' ? 'active' : ''}`}
+                            >
+                                📊 Portfolio
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('templates')}
+                                className={`tab-button ${activeTab === 'templates' ? 'active' : ''}`}
+                            >
+                                📄 Templates
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('marketplace')}
+                                className={`tab-button ${activeTab === 'marketplace' ? 'active' : ''}`}
+                            >
+                                🛒 Marketplace
+                            </button>
+                        </div>
+                        
+                        {/* Portfolio Tab */}
+                        {activeTab === 'portfolio' && (
+                            <div className="space-y-6">
+                                <div className="glass-card p-6">
+                                    <h2 className="text-2xl font-bold mb-6">Add/Edit Portfolio</h2>
+                                    <form onSubmit={handlePortfolioSubmit} className="space-y-4">
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Portfolio Type</label>
+                                                <input
+                                                    type="text"
+                                                    value={portfolioForm.type}
+                                                    onChange={(e) => setPortfolioForm({ ...portfolioForm, type: e.target.value })}
+                                                    placeholder="e.g., Mobile App, Web Application, Backend System"
+                                                    className="w-full px-4 py-2 rounded-lg"
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Programming Language</label>
+                                                <input
+                                                    type="text"
+                                                    value={portfolioForm.programming_language}
+                                                    onChange={(e) => setPortfolioForm({ ...portfolioForm, programming_language: e.target.value })}
+                                                    placeholder="e.g., React, TypeScript, Node.js"
+                                                    className="w-full px-4 py-2 rounded-lg"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Name</label>
+                                            <input
+                                                type="text"
+                                                value={portfolioForm.name}
+                                                onChange={(e) => setPortfolioForm({ ...portfolioForm, name: e.target.value })}
+                                                placeholder="Portfolio item name"
+                                                className="w-full px-4 py-2 rounded-lg"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Description</label>
+                                            <textarea
+                                                value={portfolioForm.description}
+                                                onChange={(e) => setPortfolioForm({ ...portfolioForm, description: e.target.value })}
+                                                placeholder="Detailed description"
+                                                rows="4"
+                                                className="w-full px-4 py-2 rounded-lg"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Live Demo URL</label>
+                                            <input
+                                                type="url"
+                                                value={portfolioForm.live_demo_url || ''}
+                                                onChange={(e) => setPortfolioForm({ ...portfolioForm, live_demo_url: e.target.value })}
+                                                placeholder="https://example.com"
+                                                className="w-full px-4 py-2 rounded-lg"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Image</label>
+                                            <div className="space-y-2">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file) {
+                                                            const uploading = document.getElementById('portfolio-upload-status');
+                                                            if (uploading) uploading.textContent = 'Uploading...';
+                                                            try {
+                                                                // Check if user is authenticated
+                                                                const { data: { user } } = await supabase.auth.getUser();
+                                                                if (!user) {
+                                                                    throw new Error('You must be logged in to upload images');
+                                                                }
+                                                                
+                                                                const fileExt = file.name.split('.').pop();
+                                                                const fileName = `portfolio_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                                                                const { data, error } = await supabase.storage
+                                                                    .from('images')
+                                                                    .upload(fileName, file);
+                                                                if (error) {
+                                                                    console.error('Upload error:', error);
+                                                                    throw new Error(error.message || 'Upload failed. Check storage bucket and policies.');
+                                                                }
+                                                                const { data: { publicUrl } } = supabase.storage
+                                                                    .from('images')
+                                                                    .getPublicUrl(data.path);
+                                                                setPortfolioForm({ ...portfolioForm, image: publicUrl });
+                                                                if (uploading) uploading.textContent = 'Uploaded!';
+                                                            } catch (error) {
+                                                                console.error('Upload error:', error);
+                                                                const errorMsg = error.message || 'Upload failed. Make sure storage bucket exists and policies are set.';
+                                                                showToast('Error', errorMsg, 'error');
+                                                                if (uploading) uploading.textContent = 'Upload failed: ' + errorMsg;
+                                                            }
+                                                        }
+                                                    }}
+                                                    className="w-full px-4 py-2 rounded-lg border border-gray-600"
+                                                />
+                                                <div id="portfolio-upload-status" className="text-xs text-gray-400"></div>
+                                                <div className="text-xs text-gray-500">OR</div>
+                                                <input
+                                                    type="url"
+                                                    value={portfolioForm.image || ''}
+                                                    onChange={(e) => setPortfolioForm({ ...portfolioForm, image: e.target.value })}
+                                                    placeholder="Or paste image URL here"
+                                                    className="w-full px-4 py-2 rounded-lg"
+                                                />
+                                            </div>
+                                            {portfolioForm.image && (
+                                                <div className="mt-2">
+                                                    <img src={portfolioForm.image} alt="Preview" className="w-32 h-20 object-cover rounded border border-gray-600" onError={(e) => { e.target.style.display = 'none'; }} />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                type="submit"
+                                                className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
+                                            >
+                                                {editingPortfolio ? 'Update Portfolio' : 'Add Portfolio'}
+                                            </button>
+                                            {editingPortfolio && (
+                                                <button
+                                                    type="button"
+                                                    onClick={resetPortfolioForm}
+                                                    className="px-6 py-2 border border-gray-600 hover:bg-gray-800 rounded-lg"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </div>
+                                
+                                <div className="glass-card p-6">
+                                    <h2 className="text-2xl font-bold mb-6">Portfolio Items ({portfolios.length})</h2>
+                                    <div className="space-y-4">
+                                        {portfolios.length === 0 ? (
+                                            <p className="text-gray-400 text-center py-8">No portfolio items yet</p>
+                                        ) : (
+                                            portfolios.map((portfolio) => (
+                                                <div key={portfolio.id} className="p-4 border border-gray-700 rounded-lg flex items-start justify-between gap-4">
+                                                    {portfolio.image && (
+                                                        <img src={portfolio.image} alt={portfolio.name} className="w-24 h-24 object-cover rounded border border-gray-600 flex-shrink-0" onError={(e) => { e.target.style.display = 'none'; }} />
+                                                    )}
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span className="px-2 py-1 text-xs rounded bg-purple-500/20 text-purple-400">
+                                                                {portfolio.type}
+                                                            </span>
+                                                            <span className="text-sm text-gray-400">{portfolio.programming_language}</span>
+                                                        </div>
+                                                        <h3 className="font-bold text-lg mb-1">{portfolio.name}</h3>
+                                                        <p className="text-sm text-gray-400">{portfolio.description}</p>
+                                                        {portfolio.live_demo_url && (
+                                                            <a href={portfolio.live_demo_url} target="_blank" rel="noopener noreferrer" className="text-sm text-purple-400 hover:text-purple-300 mt-2 inline-block">
+                                                                🔗 Live Demo
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => handlePortfolioEdit(portfolio)}
+                                                            className="px-3 py-2 border border-gray-600 hover:bg-gray-800 rounded"
+                                                        >
+                                                            ✏️ Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handlePortfolioDelete(portfolio.id)}
+                                                            className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded"
+                                                        >
+                                                            🗑️ Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* Templates Tab */}
+                        {activeTab === 'templates' && (
+                            <div className="space-y-6">
+                                <div className="glass-card p-6">
+                                    <h2 className="text-2xl font-bold mb-6">Add/Edit Template</h2>
+                                    <form onSubmit={handleTemplateSubmit} className="space-y-4">
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={templateForm.name}
+                                                    onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
+                                                    placeholder="Template name"
+                                                    className="w-full px-4 py-2 rounded-lg"
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Programming Language</label>
+                                                <input
+                                                    type="text"
+                                                    value={templateForm.programming_language}
+                                                    onChange={(e) => setTemplateForm({ ...templateForm, programming_language: e.target.value })}
+                                                    placeholder="e.g., React, Vue, Angular"
+                                                    className="w-full px-4 py-2 rounded-lg"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Price ($)</label>
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={templateForm.price}
+                                                    onChange={(e) => setTemplateForm({ ...templateForm, price: parseFloat(e.target.value) || 0 })}
+                                                    placeholder="0.00"
+                                                    className="w-full px-4 py-2 rounded-lg"
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Review Rating (0-5)</label>
+                                                <input
+                                                    type="number"
+                                                    step="0.1"
+                                                    min="0"
+                                                    max="5"
+                                                    value={templateForm.review}
+                                                    onChange={(e) => setTemplateForm({ ...templateForm, review: parseFloat(e.target.value) || 0 })}
+                                                    placeholder="4.5"
+                                                    className="w-full px-4 py-2 rounded-lg"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Description</label>
+                                            <textarea
+                                                value={templateForm.description}
+                                                onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
+                                                placeholder="Template description"
+                                                rows="4"
+                                                className="w-full px-4 py-2 rounded-lg"
+                                                required
+                                            />
+                                        </div>
+                                        {/* Multiple Images Section */}
+                                        <div className="border-t pt-4">
+                                            <label className="block text-sm font-medium mb-3 text-lg">Template Images (for carousel)</label>
+                                            <div className="space-y-3">
+                                                {(templateForm.images || []).map((img, index) => (
+                                                    <div key={index} className="flex items-center gap-3 p-3 border border-gray-600 rounded-lg">
+                                                        <img src={img} alt={`Template ${index + 1}`} className="w-20 h-20 object-cover rounded" />
+                                                        <div className="flex-1">
+                                                            <input
+                                                                type="url"
+                                                                value={img}
+                                                                onChange={(e) => {
+                                                                    const updated = [...(templateForm.images || [])];
+                                                                    updated[index] = e.target.value;
+                                                                    setTemplateForm({ ...templateForm, images: updated });
+                                                                }}
+                                                                placeholder="Image URL"
+                                                                className="w-full px-4 py-2 rounded-lg"
+                                                            />
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <label className="cursor-pointer px-3 py-2 border border-gray-600 hover:bg-gray-800 rounded">
+                                                                📤
+                                                                <input
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    className="hidden"
+                                                                    onChange={(e) => handleImageUpload(e, index)}
+                                                                />
+                                                            </label>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleImageRemove(index)}
+                                                                className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded"
+                                                            >
+                                                                🗑️
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        id="template-new-image-input"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => handleImageUpload(e)}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const input = document.getElementById('template-new-image-input');
+                                                            if (input) input.click();
+                                                        }}
+                                                        className="px-4 py-2 border border-gray-600 hover:bg-gray-800 rounded"
+                                                    >
+                                                        📤 Upload New Image
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const url = prompt('Enter image URL:');
+                                                            if (url) handleImageUrlAdd(url);
+                                                        }}
+                                                        className="px-4 py-2 border border-gray-600 hover:bg-gray-800 rounded"
+                                                    >
+                                                        ➕ Add Image URL
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Reviews Section */}
+                                        <div className="border-t pt-4">
+                                            <label className="block text-sm font-medium mb-3 text-lg">Reviews</label>
+                                            <div className="space-y-3">
+                                                {(templateForm.reviews || []).map((review, index) => (
+                                                    <div key={index} className="p-4 border border-gray-600 rounded-lg space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-semibold">{review.reviewer_name}</span>
+                                                                <div className="flex items-center gap-1">
+                                                                    {[1, 2, 3, 4, 5].map((star) => (
+                                                                        <span
+                                                                            key={star}
+                                                                            className={star <= review.rating ? 'text-yellow-400' : 'text-gray-500'}
+                                                                        >
+                                                                            ⭐
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRemoveReview(index)}
+                                                                className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+                                                            >
+                                                                🗑️
+                                                            </button>
+                                                        </div>
+                                                        <p className="text-sm text-gray-400">{review.review_text}</p>
+                                                    </div>
+                                                ))}
+                                                <div className="p-4 border border-gray-600 rounded-lg space-y-3 bg-gray-800/30">
+                                                    <h5 className="font-semibold">Add New Review</h5>
+                                                    <div className="grid md:grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs text-gray-400 mb-1">Reviewer Name</label>
+                                                            <input
+                                                                type="text"
+                                                                value={newReview.reviewer_name}
+                                                                onChange={(e) => setNewReview({ ...newReview, reviewer_name: e.target.value })}
+                                                                placeholder="John Doe"
+                                                                className="w-full px-3 py-2 rounded-lg text-sm"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs text-gray-400 mb-1">Rating (1-5)</label>
+                                                            <input
+                                                                type="number"
+                                                                min="1"
+                                                                max="5"
+                                                                value={newReview.rating}
+                                                                onChange={(e) => setNewReview({ ...newReview, rating: parseInt(e.target.value) || 5 })}
+                                                                className="w-full px-3 py-2 rounded-lg text-sm"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs text-gray-400 mb-1">Review Text</label>
+                                                        <textarea
+                                                            value={newReview.review_text}
+                                                            onChange={(e) => setNewReview({ ...newReview, review_text: e.target.value })}
+                                                            placeholder="Write a review..."
+                                                            rows="3"
+                                                            className="w-full px-3 py-2 rounded-lg text-sm"
+                                                        />
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAddReview}
+                                                        className="px-4 py-2 border border-gray-600 hover:bg-gray-800 rounded"
+                                                    >
+                                                        ➕ Add Review
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                type="submit"
+                                                className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
+                                            >
+                                                {editingTemplate ? 'Update Template' : 'Add Template'}
+                                            </button>
+                                            {editingTemplate && (
+                                                <button
+                                                    type="button"
+                                                    onClick={resetTemplateForm}
+                                                    className="px-6 py-2 border border-gray-600 hover:bg-gray-800 rounded-lg"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </div>
+                                
+                                <div className="glass-card p-6">
+                                    <h2 className="text-2xl font-bold mb-6">Templates ({templates.length})</h2>
+                                    <div className="space-y-4">
+                                        {templates.length === 0 ? (
+                                            <p className="text-gray-400 text-center py-8">No templates yet</p>
+                                        ) : (
+                                            templates.map((template) => (
+                                                <div key={template.id} className="p-4 border border-gray-700 rounded-lg flex items-start justify-between gap-4">
+                                                    {template.image && (
+                                                        <img src={template.image} alt={template.name} className="w-24 h-24 object-cover rounded border border-gray-600 flex-shrink-0" onError={(e) => { e.target.style.display = 'none'; }} />
+                                                    )}
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span className="text-sm text-gray-400">{template.programming_language}</span>
+                                                            <span className="text-sm font-bold text-purple-400">${template.price}</span>
+                                                            {template.review && (
+                                                                <span className="text-sm text-gray-400">⭐ {template.review}</span>
+                                                            )}
+                                                        </div>
+                                                        <h3 className="font-bold text-lg mb-1">{template.name}</h3>
+                                                        <p className="text-sm text-gray-400">{template.description}</p>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => handleTemplateEdit(template)}
+                                                            className="px-3 py-2 border border-gray-600 hover:bg-gray-800 rounded"
+                                                        >
+                                                            ✏️ Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleTemplateDelete(template.id)}
+                                                            className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded"
+                                                        >
+                                                            🗑️ Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* Marketplace Tab */}
+                        {activeTab === 'marketplace' && (
+                            <div className="space-y-6">
+                                <div className="glass-card p-6">
+                                    <h2 className="text-2xl font-bold mb-6">Add/Edit Marketplace Item</h2>
+                                    <form onSubmit={handleMarketplaceSubmit} className="space-y-4">
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={marketplaceForm.name}
+                                                    onChange={(e) => setMarketplaceForm({ ...marketplaceForm, name: e.target.value })}
+                                                    placeholder="Item name"
+                                                    className="w-full px-4 py-2 rounded-lg"
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Type</label>
+                                                <select
+                                                    value={marketplaceForm.type}
+                                                    onChange={(e) => setMarketplaceForm({ ...marketplaceForm, type: e.target.value })}
+                                                    className="w-full px-4 py-2 rounded-lg"
+                                                >
+                                                    <option value="plugin">Plugin</option>
+                                                    <option value="api">API</option>
+                                                    <option value="vps">VPS</option>
+                                                    <option value="server">Server</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Price ($)</label>
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={marketplaceForm.price}
+                                                    onChange={(e) => setMarketplaceForm({ ...marketplaceForm, price: parseFloat(e.target.value) || 0 })}
+                                                    placeholder="0.00"
+                                                    className="w-full px-4 py-2 rounded-lg"
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Review Rating (0-5)</label>
+                                                <input
+                                                    type="number"
+                                                    step="0.1"
+                                                    min="0"
+                                                    max="5"
+                                                    value={marketplaceForm.review}
+                                                    onChange={(e) => setMarketplaceForm({ ...marketplaceForm, review: parseFloat(e.target.value) || 0 })}
+                                                    placeholder="4.5"
+                                                    className="w-full px-4 py-2 rounded-lg"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Description</label>
+                                            <textarea
+                                                value={marketplaceForm.description}
+                                                onChange={(e) => setMarketplaceForm({ ...marketplaceForm, description: e.target.value })}
+                                                placeholder="Item description"
+                                                rows="4"
+                                                className="w-full px-4 py-2 rounded-lg"
+                                                required
+                                            />
+                                        </div>
+                                        {/* Multiple Images Section */}
+                                        <div className="border-t pt-4">
+                                            <label className="block text-sm font-medium mb-3 text-lg">Product Images (for carousel)</label>
+                                            <div className="space-y-3">
+                                                {(marketplaceForm.images || []).map((img, index) => (
+                                                    <div key={index} className="flex items-center gap-3 p-3 border border-gray-600 rounded-lg">
+                                                        <img src={img} alt={`Product ${index + 1}`} className="w-20 h-20 object-cover rounded" />
+                                                        <div className="flex-1">
+                                                            <input
+                                                                type="url"
+                                                                value={img}
+                                                                onChange={(e) => {
+                                                                    const updated = [...(marketplaceForm.images || [])];
+                                                                    updated[index] = e.target.value;
+                                                                    setMarketplaceForm({ ...marketplaceForm, images: updated });
+                                                                }}
+                                                                placeholder="Image URL"
+                                                                className="w-full px-4 py-2 rounded-lg"
+                                                            />
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <label className="cursor-pointer px-3 py-2 border border-gray-600 hover:bg-gray-800 rounded">
+                                                                📤
+                                                                <input
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    className="hidden"
+                                                                    onChange={(e) => handleMarketplaceImageUpload(e, index)}
+                                                                />
+                                                            </label>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleMarketplaceImageRemove(index)}
+                                                                className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded"
+                                                            >
+                                                                🗑️
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        id="marketplace-new-image-input"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => handleMarketplaceImageUpload(e)}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const input = document.getElementById('marketplace-new-image-input');
+                                                            if (input) input.click();
+                                                        }}
+                                                        className="px-4 py-2 border border-gray-600 hover:bg-gray-800 rounded"
+                                                    >
+                                                        📤 Upload New Image
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const url = prompt('Enter image URL:');
+                                                            if (url) handleMarketplaceImageUrlAdd(url);
+                                                        }}
+                                                        className="px-4 py-2 border border-gray-600 hover:bg-gray-800 rounded"
+                                                    >
+                                                        ➕ Add Image URL
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Reviews Section */}
+                                        <div className="border-t pt-4">
+                                            <label className="block text-sm font-medium mb-3 text-lg">Reviews</label>
+                                            <div className="space-y-3">
+                                                {(marketplaceForm.reviews || []).map((review, index) => (
+                                                    <div key={index} className="p-4 border border-gray-600 rounded-lg space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-semibold">{review.reviewer_name}</span>
+                                                                <div className="flex items-center gap-1">
+                                                                    {[1, 2, 3, 4, 5].map((star) => (
+                                                                        <span
+                                                                            key={star}
+                                                                            className={star <= review.rating ? 'text-yellow-400' : 'text-gray-500'}
+                                                                        >
+                                                                            ⭐
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRemoveMarketplaceReview(index)}
+                                                                className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+                                                            >
+                                                                🗑️
+                                                            </button>
+                                                        </div>
+                                                        <p className="text-sm text-gray-400">{review.review_text}</p>
+                                                    </div>
+                                                ))}
+                                                <div className="p-4 border border-gray-600 rounded-lg space-y-3 bg-gray-800/30">
+                                                    <h5 className="font-semibold">Add New Review</h5>
+                                                    <div className="grid md:grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs text-gray-400 mb-1">Reviewer Name</label>
+                                                            <input
+                                                                type="text"
+                                                                value={newMarketplaceReview.reviewer_name}
+                                                                onChange={(e) => setNewMarketplaceReview({ ...newMarketplaceReview, reviewer_name: e.target.value })}
+                                                                placeholder="John Doe"
+                                                                className="w-full px-3 py-2 rounded-lg text-sm"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs text-gray-400 mb-1">Rating (1-5)</label>
+                                                            <input
+                                                                type="number"
+                                                                min="1"
+                                                                max="5"
+                                                                value={newMarketplaceReview.rating}
+                                                                onChange={(e) => setNewMarketplaceReview({ ...newMarketplaceReview, rating: parseInt(e.target.value) || 5 })}
+                                                                className="w-full px-3 py-2 rounded-lg text-sm"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs text-gray-400 mb-1">Review Text</label>
+                                                        <textarea
+                                                            value={newMarketplaceReview.review_text}
+                                                            onChange={(e) => setNewMarketplaceReview({ ...newMarketplaceReview, review_text: e.target.value })}
+                                                            placeholder="Write a review..."
+                                                            rows="3"
+                                                            className="w-full px-3 py-2 rounded-lg text-sm"
+                                                        />
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAddMarketplaceReview}
+                                                        className="px-4 py-2 border border-gray-600 hover:bg-gray-800 rounded"
+                                                    >
+                                                        ➕ Add Review
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                type="submit"
+                                                className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
+                                            >
+                                                {editingMarketplace ? 'Update Item' : 'Add Item'}
+                                            </button>
+                                            {editingMarketplace && (
+                                                <button
+                                                    type="button"
+                                                    onClick={resetMarketplaceForm}
+                                                    className="px-6 py-2 border border-gray-600 hover:bg-gray-800 rounded-lg"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </div>
+                                
+                                <div className="glass-card p-6">
+                                    <h2 className="text-2xl font-bold mb-6">Marketplace Items ({marketplaceItems.length})</h2>
+                                    <div className="space-y-4">
+                                        {marketplaceItems.length === 0 ? (
+                                            <p className="text-gray-400 text-center py-8">No marketplace items yet</p>
+                                        ) : (
+                                            marketplaceItems.map((item) => (
+                                                <div key={item.id} className="p-4 border border-gray-700 rounded-lg flex items-start justify-between gap-4">
+                                                    {item.image && (
+                                                        <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded border border-gray-600 flex-shrink-0" onError={(e) => { e.target.style.display = 'none'; }} />
+                                                    )}
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span className="px-2 py-1 text-xs rounded bg-purple-500/20 text-purple-400 uppercase">
+                                                                {item.type}
+                                                            </span>
+                                                            <span className="text-sm font-bold text-purple-400">${item.price}</span>
+                                                            {item.review && (
+                                                                <span className="text-sm text-gray-400">⭐ {item.review}</span>
+                                                            )}
+                                                        </div>
+                                                        <h3 className="font-bold text-lg mb-1">{item.name}</h3>
+                                                        <p className="text-sm text-gray-400">{item.description}</p>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => handleMarketplaceEdit(item)}
+                                                            className="px-3 py-2 border border-gray-600 hover:bg-gray-800 rounded"
+                                                        >
+                                                            ✏️ Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleMarketplaceDelete(item.id)}
+                                                            className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded"
+                                                        >
+                                                            🗑️ Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    
+                    {/* Toast */}
+                    {toast && (
+                        <Toast message={toast} type={toast.type} onClose={() => setToast(null)} />
+                    )}
+                </div>
+            );
+        }
+        
+        // Main App Component
+        function App() {
+            const [user, setUser] = useState(null);
+            const [loading, setLoading] = useState(true);
+            
+            useEffect(() => {
+                // Check if user is already logged in
+                supabase.auth.getSession().then(({ data: { session } }) => {
+                    if (session) {
+                        setUser(session.user);
+                    }
+                    setLoading(false);
+                });
+                
+                // Listen for auth changes
+                const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+                    setUser(session?.user || null);
+                });
+                
+                return () => subscription.unsubscribe();
+            }, []);
+            
+            const handleLogin = (userData) => {
+                setUser(userData);
+            };
+            
+            const handleLogout = async () => {
+                await supabase.auth.signOut();
+                setUser(null);
+            };
+            
+            if (loading) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center">
+                        <div className="text-gray-400">Loading...</div>
+                    </div>
+                );
+            }
+            
+            if (!user) {
+                return <Login onLogin={handleLogin} />;
+            }
+            
+            return <AdminPanel user={user} onLogout={handleLogout} />;
+        }
+        
+                // Render App
+                try {
+                    const root = ReactDOM.createRoot(document.getElementById('root'));
+                    root.render(<App />);
+                    console.log('[Admin Panel] App rendered successfully');
+                } catch (error) {
+                    console.error('[Admin Panel] Error rendering app:', error);
+                    document.getElementById('root').innerHTML = `
+                        <div style="padding: 40px; text-align: center; color: #e5e5e5;">
+                            <h1 style="color: #ff4444;">Error Loading Admin Panel</h1>
+                            <p>${error.message}</p>
+                            <p style="margin-top: 20px; color: #999;">Check browser console (F12) for details</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('[Admin Panel] Initialization error:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div style="text-align: center; color: #ff4444;">
+                        <h2>Error Loading Admin Panel</h2>
+                        <p>${error.message}</p>
+                        <p style="margin-top: 20px; color: #999;">Please check your internet connection and try again.</p>
+                        <p style="margin-top: 10px; color: #999;">Open browser console (F12) for more details.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Start checking for libraries
+        window.addEventListener('load', () => {
+            updateStatus('Checking libraries...');
+            checkLibraries();
+        });
+        
+        // Fallback: if libraries don't load in 10 seconds, show error
+        setTimeout(() => {
+            if (!window.React || !window.ReactDOM || !window.Babel || !window.supabase) {
+                const loading = document.getElementById('loading');
+                if (loading) {
+                    loading.innerHTML = `
+                        <div style="text-align: center; color: #ff4444;">
+                            <h2>Failed to Load Required Libraries</h2>
+                            <p>Please check your internet connection.</p>
+                            <p style="margin-top: 20px; color: #999;">Required libraries:</p>
+                            <ul style="text-align: left; display: inline-block; margin-top: 10px; color: #999;">
+                                <li>React: ${window.React ? '✓' : '✗'}</li>
+                                <li>ReactDOM: ${window.ReactDOM ? '✓' : '✗'}</li>
+                                <li>Babel: ${window.Babel ? '✓' : '✗'}</li>
+                                <li>Supabase: ${window.supabase ? '✓' : '✗'}</li>
+                            </ul>
+                            <p style="margin-top: 20px;"><button onclick="location.reload()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">Retry</button></p>
+                        </div>
+                    `;
+                }
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
+
