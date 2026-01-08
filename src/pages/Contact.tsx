@@ -13,13 +13,13 @@ const contactInfo = [
 ];
 
 const socialLinks = [
-  { icon: Github, label: 'GitHub', href: '#', color: '#24292e' },
-  { icon: Linkedin, label: 'LinkedIn', href: '#', color: '#0077b5' },
+  { icon: Github, label: 'GitHub', href: '#', color: '#181717' },
+  { icon: Linkedin, label: 'LinkedIn', href: '#', color: '#0A66C2' },
   { icon: Twitter, label: 'Twitter', href: '#', color: '#1DA1F2' },
-  { icon: Facebook, label: 'Facebook', href: '#', color: '#1877F2' },
-  { icon: Instagram, label: 'Instagram', href: '#', color: '#E4405F' },
+  { icon: Facebook, label: 'Facebook', href: '#', color: '#0866FF' },
+  { icon: Instagram, label: 'Instagram', href: '#', color: '#E4405F', gradient: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)' },
   { icon: MessageCircle, label: 'Skype', href: '#', color: '#00AFF0' },
-  { icon: Send, label: 'Telegram', href: '#', color: '#0088cc' },
+  { icon: Send, label: 'Telegram', href: '#', color: '#229ED9' },
 ];
 
 export default function Contact() {
@@ -161,16 +161,23 @@ export default function Contact() {
                   <a
                     key={link.label}
                     href={link.href}
-                    className="p-4 rounded-lg bg-muted/50 hover:bg-muted transition-all group"
+                    className={`p-4 rounded-lg transition-all group ${
+                      link.label === 'Instagram' && link.gradient
+                        ? 'bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] hover:opacity-90'
+                        : 'bg-muted/50 hover:bg-muted'
+                    }`}
                     aria-label={link.label}
-                    style={{ 
-                      color: link.color,
-                    }}
                   >
-                    <link.icon 
-                      className="w-6 h-6 group-hover:scale-110 transition-transform" 
-                      style={{ color: link.color }}
-                    />
+                    {link.label === 'Instagram' && link.gradient ? (
+                      <link.icon 
+                        className="w-6 h-6 group-hover:scale-110 transition-transform text-white" 
+                      />
+                    ) : (
+                      <link.icon 
+                        className="w-6 h-6 group-hover:scale-110 transition-transform" 
+                        style={{ color: link.color }}
+                      />
+                    )}
                   </a>
                 ))}
               </div>
