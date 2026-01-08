@@ -132,9 +132,9 @@ export default function Index() {
             transition={{ delay: 0.3 }}
             className="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight"
           >
-            Build Your Next{' '}
-            <span className="text-gradient">Digital Product</span>{' '}
-            With Us
+            We bring your{' '}
+            <span className="text-gradient">ideas and innovation dreams</span>{' '}
+            to reality
           </motion.h1>
 
           <motion.p
