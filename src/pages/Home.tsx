@@ -54,13 +54,12 @@ export default function Home() {
               </span>
             </motion.div>
 
-            <motion.h1
-              variants={item}
-              className="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight"
-            >
-              <span className="text-2xl md:text-3xl font-normal">Welcome to</span>{' '}
-              <span className="text-gradient">DevStackGlobe</span>
-            </motion.h1>
+            <motion.div variants={item} className="mb-6">
+              <h1 className="font-display text-5xl md:text-7xl font-bold leading-tight">
+                <div className="text-2xl md:text-3xl font-normal mb-2">Welcome to</div>
+                <div className="text-gradient">DevStackGlobe</div>
+              </h1>
+            </motion.div>
 
             <motion.p
               variants={item}
