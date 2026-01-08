@@ -1,11 +1,77 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Globe, ArrowRight, Sparkles, Smartphone, Gamepad2, Bitcoin, Monitor, Zap } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Globe, ArrowRight, Sparkles, Smartphone, Gamepad2, Bitcoin, Monitor, Zap, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import Footer from '@/components/Footer';
 
+interface Review {
+  reviewer_name: string;
+  review_text: string;
+  rating: number;
+  company?: string;
+  role?: string;
+}
+
+const reviews: Review[] = [
+  {
+    reviewer_name: 'Sarah Johnson',
+    review_text: 'DevStackGlobe transformed our business with their exceptional web development services. The team is professional, responsive, and delivers beyond expectations.',
+    rating: 5,
+    company: 'TechStart Inc.',
+    role: 'CEO'
+  },
+  {
+    reviewer_name: 'Michael Chen',
+    review_text: 'The templates we purchased saved us months of development time. High-quality code, excellent documentation, and great support. Highly recommended!',
+    rating: 5,
+    company: 'Digital Solutions',
+    role: 'CTO'
+  },
+  {
+    reviewer_name: 'Emily Rodriguez',
+    review_text: 'Outstanding mobile app development services. They understood our vision and brought it to life with a beautiful, functional app that our users love.',
+    rating: 5,
+    company: 'AppVenture',
+    role: 'Product Manager'
+  },
+  {
+    reviewer_name: 'David Thompson',
+    review_text: 'Working with DevStackGlobe was a game-changer. Their blockchain expertise helped us launch our Web3 platform successfully. Professional and knowledgeable team.',
+    rating: 5,
+    company: 'CryptoVault',
+    role: 'Founder'
+  },
+  {
+    reviewer_name: 'Lisa Anderson',
+    review_text: 'The marketplace products are top-notch. We\'ve purchased multiple items and each one exceeded our expectations. Great value for money!',
+    rating: 5,
+    company: 'InnovateLab',
+    role: 'Lead Developer'
+  }
+];
+
 export default function Index() {
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+
+  // Auto-swipe reviews every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentReviewIndex((prev) => (prev + 1) % reviews.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const goToNext = () => {
+    setCurrentReviewIndex((prev) => (prev + 1) % reviews.length);
+  };
+
+  const goToPrevious = () => {
+    setCurrentReviewIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+  };
+
   return (
     <div className="min-h-screen bg-background bg-gradient-radial flex flex-col">
       {/* Background Effects */}
@@ -123,6 +189,103 @@ export default function Index() {
           </motion.div>
         </motion.div>
       </main>
+
+      {/* Reviews Section */}
+      <section className="relative z-10 py-20 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
+              What Our <span className="text-gradient">Clients Say</span>
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Trusted by developers and businesses worldwide
+            </p>
+          </motion.div>
+
+          <div className="relative">
+            {/* Review Carousel */}
+            <div className="relative overflow-hidden rounded-2xl">
+              <motion.div
+                key={currentReviewIndex}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.5 }}
+                className="glass-card p-8 md:p-12"
+              >
+                <div className="flex items-center justify-center mb-6">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`w-6 h-6 ${
+                        star <= reviews[currentReviewIndex].rating
+                          ? 'fill-primary text-primary'
+                          : 'text-muted-foreground'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <blockquote className="text-xl md:text-2xl font-medium text-center mb-6 leading-relaxed">
+                  "{reviews[currentReviewIndex].review_text}"
+                </blockquote>
+
+                <div className="text-center">
+                  <p className="font-semibold text-lg mb-1">
+                    {reviews[currentReviewIndex].reviewer_name}
+                  </p>
+                  {(reviews[currentReviewIndex].company || reviews[currentReviewIndex].role) && (
+                    <p className="text-muted-foreground">
+                      {reviews[currentReviewIndex].role}
+                      {reviews[currentReviewIndex].role && reviews[currentReviewIndex].company && ', '}
+                      {reviews[currentReviewIndex].company}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Navigation Buttons */}
+            <button
+              onClick={goToPrevious}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 w-10 h-10 md:w-12 md:h-12 rounded-full glass-card border border-border/50 hover:border-primary/50 flex items-center justify-center transition-all hover:scale-110 z-10"
+              aria-label="Previous review"
+            >
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+            </button>
+
+            <button
+              onClick={goToNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 w-10 h-10 md:w-12 md:h-12 rounded-full glass-card border border-border/50 hover:border-primary/50 flex items-center justify-center transition-all hover:scale-110 z-10"
+              aria-label="Next review"
+            >
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+            </button>
+
+            {/* Dots Indicator */}
+            <div className="flex items-center justify-center gap-2 mt-8">
+              {reviews.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentReviewIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentReviewIndex
+                      ? 'bg-primary w-8'
+                      : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                  }`}
+                  aria-label={`Go to review ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
       <Footer />
