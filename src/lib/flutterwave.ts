@@ -86,8 +86,10 @@ export const makePayment = (config: FlutterwaveConfig) => {
       currency: config.currency,
     });
     
-    // Try both public_key (v3) and PBFPubKey (v2) for compatibility
+    // Flutterwave v3.js expects PBFPubKey parameter
+    // For V4 API keys, we use PBFPubKey format
     const flutterwaveConfig: any = {
+      PBFPubKey: config.public_key, // v3.js requires PBFPubKey, not public_key
       tx_ref: config.tx_ref,
       amount: config.amount,
       currency: config.currency,
@@ -97,14 +99,6 @@ export const makePayment = (config: FlutterwaveConfig) => {
       callback: config.callback,
       onclose: config.onclose,
     };
-    
-    // Try public_key first (v3 format)
-    if (config.public_key.startsWith('FLWPUBK-') || config.public_key.length > 20) {
-      flutterwaveConfig.public_key = config.public_key;
-    } else {
-      // Fallback to PBFPubKey for older format
-      flutterwaveConfig.PBFPubKey = config.public_key;
-    }
     
     console.log('Flutterwave config object:', { ...flutterwaveConfig, public_key: flutterwaveConfig.public_key?.substring(0, 10) + '...' || flutterwaveConfig.PBFPubKey?.substring(0, 10) + '...' });
     
