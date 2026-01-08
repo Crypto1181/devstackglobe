@@ -167,9 +167,9 @@ export default function Home() {
                 Explore templates, plugins, and digital products to accelerate your development
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/templates">
+                <Link to="/portfolio">
                   <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold px-8">
-                    Browse Templates
+                    View Portfolio
                   </Button>
                 </Link>
                 <Link to="/marketplace">
