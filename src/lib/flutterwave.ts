@@ -47,7 +47,7 @@ export const makePayment = (config: FlutterwaveConfig) => {
   }
 
   window.FlutterwaveCheckout({
-    public_key: config.public_key,
+    PBFPubKey: config.public_key, // Flutterwave expects PBFPubKey, not public_key
     tx_ref: config.tx_ref,
     amount: config.amount,
     currency: config.currency,

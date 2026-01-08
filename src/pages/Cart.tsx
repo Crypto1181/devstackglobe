@@ -47,6 +47,9 @@ export default function Cart() {
 
       // Ensure Flutterwave is initialized
       await initializeFlutterwave();
+      
+      // Wait a bit for Flutterwave to be fully ready
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Generate unique transaction reference
       const txRef = `DSG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -129,6 +132,12 @@ export default function Cart() {
         },
         onclose: () => {
           setIsProcessing(false);
+          // User closed the payment modal without completing payment
+          toast({
+            title: 'Payment Cancelled',
+            description: 'Payment was cancelled. You can try again when ready.',
+            variant: 'destructive',
+          });
         },
       });
     } catch (error: any) {
