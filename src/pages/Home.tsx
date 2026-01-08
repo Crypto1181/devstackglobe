@@ -58,7 +58,7 @@ export default function Home() {
               variants={item}
               className="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight"
             >
-              Welcome to{' '}
+              <span className="text-2xl md:text-3xl font-normal">Welcome to</span>{' '}
               <span className="text-gradient">DevStackGlobe</span>
             </motion.h1>
 
@@ -66,7 +66,7 @@ export default function Home() {
               variants={item}
               className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto"
             >
-              I'm a <span className="text-primary font-semibold">Full Stack Developer</span> specializing in
+              We are <span className="text-primary font-semibold">Full Stack Developers</span> specializing in
             </motion.p>
 
             <motion.p
