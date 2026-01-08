@@ -79,9 +79,15 @@ export const makePayment = (config: FlutterwaveConfig) => {
   }
 
   try {
-    console.log('Calling FlutterwaveCheckout...');
-    window.FlutterwaveCheckout({
-      PBFPubKey: config.public_key, // Flutterwave expects PBFPubKey, not public_key
+    console.log('Calling FlutterwaveCheckout with config:', {
+      public_key: config.public_key.substring(0, 10) + '...',
+      tx_ref: config.tx_ref,
+      amount: config.amount,
+      currency: config.currency,
+    });
+    
+    // Try both public_key (v3) and PBFPubKey (v2) for compatibility
+    const flutterwaveConfig: any = {
       tx_ref: config.tx_ref,
       amount: config.amount,
       currency: config.currency,
@@ -90,7 +96,20 @@ export const makePayment = (config: FlutterwaveConfig) => {
       customizations: config.customizations,
       callback: config.callback,
       onclose: config.onclose,
-    });
+    };
+    
+    // Try public_key first (v3 format)
+    if (config.public_key.startsWith('FLWPUBK-') || config.public_key.length > 20) {
+      flutterwaveConfig.public_key = config.public_key;
+    } else {
+      // Fallback to PBFPubKey for older format
+      flutterwaveConfig.PBFPubKey = config.public_key;
+    }
+    
+    console.log('Flutterwave config object:', { ...flutterwaveConfig, public_key: flutterwaveConfig.public_key?.substring(0, 10) + '...' || flutterwaveConfig.PBFPubKey?.substring(0, 10) + '...' });
+    
+    const result = window.FlutterwaveCheckout(flutterwaveConfig);
+    console.log('FlutterwaveCheckout result:', result);
     console.log('FlutterwaveCheckout called successfully');
   } catch (error) {
     console.error('Error calling FlutterwaveCheckout:', error);
