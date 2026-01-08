@@ -6,12 +6,28 @@ import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { initializeFlutterwave, makePayment } from '@/lib/flutterwave';
+import { useEffect, useState } from 'react';
+
+// Flutterwave Configuration
+const FLUTTERWAVE_PUBLIC_KEY = 'Hh7ZS03ZS9tKLi5CVZVSdVw3917oyxxY';
+const FLUTTERWAVE_SECRET_KEY = 'vjO+KVabmDNT+5mCuB7u19qj1CKNLFDshPSO+dUonIk=';
+const FLUTTERWAVE_ENCRYPTION_KEY = '9a0edb63-a73d-49f5-ba45-ed0e65840960';
 
 export default function Cart() {
   const { items, removeFromCart, updateQuantity, clearCart, totalPrice } = useCart();
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Initialize Flutterwave on component mount
+  useEffect(() => {
+    initializeFlutterwave().catch((error) => {
+      console.error('Failed to initialize Flutterwave:', error);
+    });
+  }, []);
 
   const handleCheckout = async () => {
     if (!user) {
@@ -24,46 +40,102 @@ export default function Cart() {
       return;
     }
 
+    if (isProcessing) return;
+
     try {
-      // Save consultation purchases to database
-      const consultationItems = items.filter(item => item.type === 'consultation');
-      
-      if (consultationItems.length > 0) {
-        const purchases = consultationItems.map(item => {
-          const consultationType = item.name.includes('Product Support') ? 'product' : 'general';
-          return {
-            user_id: user.id,
-            consultation_type: consultationType,
-            amount: item.price,
-            status: 'completed',
-          };
-        });
+      setIsProcessing(true);
 
-        const { error } = await supabase
-          .from('consultation_purchases')
-          .insert(purchases);
+      // Ensure Flutterwave is initialized
+      await initializeFlutterwave();
 
-        if (error) {
-          console.error('Error saving consultation purchase:', error);
-          // Continue anyway - payment might still be processed
-        }
-      }
+      // Generate unique transaction reference
+      const txRef = `DSG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      // Simulate payment processing
-      toast({
-        title: 'Payment Successful!',
-        description: 'Your order has been processed. Thank you for your purchase!',
+      // Get user email and name
+      const userEmail = user.email || '';
+      const userName = user.user_metadata?.full_name || userEmail.split('@')[0] || 'Customer';
+
+      // Prepare payment configuration
+      makePayment({
+        public_key: FLUTTERWAVE_PUBLIC_KEY,
+        tx_ref: txRef,
+        amount: totalPrice,
+        currency: 'USD',
+        payment_options: 'card,ussd,mobilemoney,banktransfer',
+        customer: {
+          email: userEmail,
+          phone_number: user.user_metadata?.phone || '',
+          name: userName,
+        },
+        customizations: {
+          title: 'DevStackGlobe',
+          description: `Payment for ${items.length} item(s)`,
+          logo: window.location.origin + '/favicon.svg',
+        },
+        callback: async (response: any) => {
+          setIsProcessing(false);
+          
+          if (response.status === 'successful') {
+            try {
+              // Save consultation purchases to database
+              const consultationItems = items.filter(item => item.type === 'consultation');
+              
+              if (consultationItems.length > 0) {
+                const purchases = consultationItems.map(item => {
+                  const consultationType = item.name.includes('Product Support') ? 'product' : 'general';
+                  return {
+                    user_id: user.id,
+                    consultation_type: consultationType,
+                    amount: item.price,
+                    status: 'completed',
+                    transaction_id: response.transaction_id,
+                    tx_ref: txRef,
+                  };
+                });
+
+                const { error } = await supabase
+                  .from('consultation_purchases')
+                  .insert(purchases);
+
+                if (error) {
+                  console.error('Error saving consultation purchase:', error);
+                }
+              }
+
+              toast({
+                title: 'Payment Successful!',
+                description: 'Your order has been processed. Thank you for your purchase!',
+              });
+
+              // Clear cart after successful checkout
+              clearCart();
+              
+              // Redirect to contact page
+              navigate('/contact');
+            } catch (error: any) {
+              console.error('Error processing payment callback:', error);
+              toast({
+                title: 'Payment Successful',
+                description: 'Payment completed but there was an error saving your order details.',
+              });
+            }
+          } else {
+            toast({
+              title: 'Payment Failed',
+              description: 'Payment was not successful. Please try again.',
+              variant: 'destructive',
+            });
+          }
+        },
+        onclose: () => {
+          setIsProcessing(false);
+        },
       });
-
-      // Clear cart after successful checkout
-      clearCart();
-      
-      // Redirect to home or contact page
-      navigate('/contact');
     } catch (error: any) {
+      setIsProcessing(false);
       toast({
         title: 'Payment Error',
-        description: error.message || 'Failed to process payment. Please try again.',
+        description: error.message || 'Failed to initialize payment. Please try again.',
         variant: 'destructive',
       });
     }
@@ -209,13 +281,14 @@ export default function Cart() {
               </div>
               <Button
                 onClick={handleCheckout}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6"
+                disabled={isProcessing}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6 disabled:opacity-50"
               >
                 <CreditCard className="w-4 h-4 mr-2" />
-                Proceed to Checkout
+                {isProcessing ? 'Processing...' : 'Proceed to Checkout'}
               </Button>
               <p className="text-xs text-muted-foreground text-center mt-4">
-                Secure checkout powered by Stripe
+                Secure checkout powered by Flutterwave
               </p>
             </div>
           </motion.div>
