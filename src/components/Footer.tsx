@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Github, Linkedin, Twitter, Mail, MapPin, Phone } from 'lucide-react';
+import { Github, Linkedin, Twitter, Mail, MapPin, Phone, Facebook, Instagram, MessageCircle, Send } from 'lucide-react';
 import AnimatedLogo from './AnimatedLogo';
 
 const navLinks = [
@@ -14,6 +14,10 @@ const socialLinks = [
   { icon: Github, label: 'GitHub', href: '#' },
   { icon: Linkedin, label: 'LinkedIn', href: '#' },
   { icon: Twitter, label: 'Twitter', href: '#' },
+  { icon: Facebook, label: 'Facebook', href: '#' },
+  { icon: Instagram, label: 'Instagram', href: '#' },
+  { icon: MessageCircle, label: 'Skype', href: '#' },
+  { icon: Send, label: 'Telegram', href: '#' },
 ];
 
 const contactInfo = [
@@ -73,7 +77,7 @@ export default function Footer() {
           {/* Social Links */}
           <div>
             <h3 className="font-display font-bold mb-4">Follow Us</h3>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               {socialLinks.map((link) => (
                 <a
                   key={link.label}

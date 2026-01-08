@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Mail, MapPin, Phone, Github, Linkedin, Twitter } from 'lucide-react';
+import { Send, Mail, MapPin, Phone, Github, Linkedin, Twitter, Facebook, Instagram, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,6 +16,10 @@ const socialLinks = [
   { icon: Github, label: 'GitHub', href: '#' },
   { icon: Linkedin, label: 'LinkedIn', href: '#' },
   { icon: Twitter, label: 'Twitter', href: '#' },
+  { icon: Facebook, label: 'Facebook', href: '#' },
+  { icon: Instagram, label: 'Instagram', href: '#' },
+  { icon: MessageCircle, label: 'Skype', href: '#' },
+  { icon: Send, label: 'Telegram', href: '#' },
 ];
 
 export default function Contact() {
@@ -152,7 +156,7 @@ export default function Contact() {
 
             <div className="glass-card p-8">
               <h2 className="font-display text-2xl font-bold mb-6">Follow Us</h2>
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4">
                 {socialLinks.map((link) => (
                   <a
                     key={link.label}
