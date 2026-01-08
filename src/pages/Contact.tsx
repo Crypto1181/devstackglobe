@@ -13,13 +13,13 @@ const contactInfo = [
 ];
 
 const socialLinks = [
-  { icon: Github, label: 'GitHub', href: '#' },
-  { icon: Linkedin, label: 'LinkedIn', href: '#' },
-  { icon: Twitter, label: 'Twitter', href: '#' },
-  { icon: Facebook, label: 'Facebook', href: '#' },
-  { icon: Instagram, label: 'Instagram', href: '#' },
-  { icon: MessageCircle, label: 'Skype', href: '#' },
-  { icon: Send, label: 'Telegram', href: '#' },
+  { icon: Github, label: 'GitHub', href: '#', color: '#24292e' },
+  { icon: Linkedin, label: 'LinkedIn', href: '#', color: '#0077b5' },
+  { icon: Twitter, label: 'Twitter', href: '#', color: '#1DA1F2' },
+  { icon: Facebook, label: 'Facebook', href: '#', color: '#1877F2' },
+  { icon: Instagram, label: 'Instagram', href: '#', color: '#E4405F' },
+  { icon: MessageCircle, label: 'Skype', href: '#', color: '#00AFF0' },
+  { icon: Send, label: 'Telegram', href: '#', color: '#0088cc' },
 ];
 
 export default function Contact() {
@@ -161,10 +161,16 @@ export default function Contact() {
                   <a
                     key={link.label}
                     href={link.href}
-                    className="p-4 rounded-lg bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all group"
+                    className="p-4 rounded-lg bg-muted/50 hover:bg-muted transition-all group"
                     aria-label={link.label}
+                    style={{ 
+                      color: link.color,
+                    }}
                   >
-                    <link.icon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                    <link.icon 
+                      className="w-6 h-6 group-hover:scale-110 transition-transform" 
+                      style={{ color: link.color }}
+                    />
                   </a>
                 ))}
               </div>

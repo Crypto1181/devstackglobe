@@ -11,13 +11,13 @@ const navLinks = [
 ];
 
 const socialLinks = [
-  { icon: Github, label: 'GitHub', href: '#' },
-  { icon: Linkedin, label: 'LinkedIn', href: '#' },
-  { icon: Twitter, label: 'Twitter', href: '#' },
-  { icon: Facebook, label: 'Facebook', href: '#' },
-  { icon: Instagram, label: 'Instagram', href: '#' },
-  { icon: MessageCircle, label: 'Skype', href: '#' },
-  { icon: Send, label: 'Telegram', href: '#' },
+  { icon: Github, label: 'GitHub', href: '#', color: '#24292e' },
+  { icon: Linkedin, label: 'LinkedIn', href: '#', color: '#0077b5' },
+  { icon: Twitter, label: 'Twitter', href: '#', color: '#1DA1F2' },
+  { icon: Facebook, label: 'Facebook', href: '#', color: '#1877F2' },
+  { icon: Instagram, label: 'Instagram', href: '#', color: '#E4405F' },
+  { icon: MessageCircle, label: 'Skype', href: '#', color: '#00AFF0' },
+  { icon: Send, label: 'Telegram', href: '#', color: '#0088cc' },
 ];
 
 const contactInfo = [
@@ -82,10 +82,16 @@ export default function Footer() {
                 <a
                   key={link.label}
                   href={link.href}
-                  className="p-3 rounded-lg bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all"
+                  className="p-3 rounded-lg bg-muted/50 hover:bg-muted transition-all group"
                   aria-label={link.label}
+                  style={{ 
+                    color: link.color,
+                  }}
                 >
-                  <link.icon className="w-5 h-5" />
+                  <link.icon 
+                    className="w-5 h-5 transition-transform group-hover:scale-110" 
+                    style={{ color: link.color }}
+                  />
                 </a>
               ))}
             </div>
