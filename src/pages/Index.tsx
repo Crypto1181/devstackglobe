@@ -141,9 +141,13 @@ export default function Index() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
+            className="text-lg md:text-xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed"
           >
-            Full-stack development services, premium templates, and digital products to accelerate your development journey.
+            We are a full-stack development team of over 36 highly skilled professionals, each an expert in their respective domain. With our strong technical foundation and streamlined workflow, timelines are never a concern. We specialize in delivering complex, feature-rich projects efficiently successfully developed, tested, and launched within 30 days (4 weeks).
+            <br /><br />
+            Our proven track record reflects years of successful project delivery across multiple industries. Partner with us to experience reliable execution, high-quality results, and on-time delivery.
+            <br /><br />
+            Sign up to learn more we look forward to working with you.
           </motion.p>
 
           <motion.div
