@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Globe, ArrowRight, Sparkles, Smartphone, Gamepad2, Bitcoin, Monitor, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AnimatedLogo from '@/components/AnimatedLogo';
+import Footer from '@/components/Footer';
 
 export default function Index() {
   return (
@@ -124,9 +125,7 @@ export default function Index() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 p-6 text-center text-muted-foreground text-sm">
-        © 2024 DevStackGlobe. All rights reserved.
-      </footer>
+      <Footer />
     </div>
   );
 }

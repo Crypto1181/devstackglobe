@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import Footer from '@/components/Footer';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -37,7 +38,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-background bg-gradient-radial flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background bg-gradient-radial flex flex-col">
+      <div className="flex-1 flex items-center justify-center p-4">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-glow" />
@@ -120,6 +122,8 @@ export default function Login() {
           </p>
         </div>
       </motion.div>
+      </div>
+      <Footer />
     </div>
   );
 }
