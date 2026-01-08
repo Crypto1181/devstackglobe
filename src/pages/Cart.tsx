@@ -47,16 +47,21 @@ export default function Cart() {
 
       // Ensure Flutterwave is initialized
       try {
+        console.log('Initializing Flutterwave...');
         await initializeFlutterwave();
+        console.log('Flutterwave script loaded');
         
         // Wait a bit for Flutterwave to be fully ready
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Check if Flutterwave is actually loaded
         if (!window.FlutterwaveCheckout) {
+          console.error('FlutterwaveCheckout not available after loading');
           throw new Error('Flutterwave script failed to load. Please refresh the page and try again.');
         }
+        console.log('FlutterwaveCheckout is available');
       } catch (initError: any) {
+        console.error('Flutterwave initialization error:', initError);
         setIsProcessing(false);
         toast({
           title: 'Payment Error',
@@ -99,6 +104,14 @@ export default function Cart() {
 
       // Prepare payment configuration
       try {
+        console.log('Preparing Flutterwave payment...', {
+          public_key: FLUTTERWAVE_PUBLIC_KEY.substring(0, 10) + '...',
+          tx_ref: txRef,
+          amount: totalPrice,
+          currency: 'USD',
+          email: userEmail,
+        });
+        
         modalOpenedRef.current = true;
         makePayment({
           public_key: FLUTTERWAVE_PUBLIC_KEY,
@@ -117,6 +130,7 @@ export default function Cart() {
             logo: window.location.origin + '/favicon.svg',
           },
           callback: async (response: any) => {
+            console.log('Flutterwave callback received:', response);
             clearTimeout(timeoutId);
             modalOpenedRef.current = false;
             setIsProcessing(false);
@@ -187,6 +201,7 @@ export default function Cart() {
         });
       } catch (paymentError: any) {
         clearTimeout(timeoutId);
+        modalOpenedRef.current = false;
         setIsProcessing(false);
         console.error('Payment error:', paymentError);
         toast({

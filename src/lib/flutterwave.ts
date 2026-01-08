@@ -66,20 +66,35 @@ export const initializeFlutterwave = () => {
 };
 
 export const makePayment = (config: FlutterwaveConfig) => {
+  console.log('makePayment called', { 
+    hasFlutterwaveCheckout: !!window.FlutterwaveCheckout,
+    publicKey: config.public_key.substring(0, 10) + '...',
+    amount: config.amount,
+    txRef: config.tx_ref
+  });
+  
   if (!window.FlutterwaveCheckout) {
+    console.error('FlutterwaveCheckout not available');
     throw new Error('Flutterwave script not loaded');
   }
 
-  window.FlutterwaveCheckout({
-    PBFPubKey: config.public_key, // Flutterwave expects PBFPubKey, not public_key
-    tx_ref: config.tx_ref,
-    amount: config.amount,
-    currency: config.currency,
-    payment_options: config.payment_options,
-    customer: config.customer,
-    customizations: config.customizations,
-    callback: config.callback,
-    onclose: config.onclose,
-  });
+  try {
+    console.log('Calling FlutterwaveCheckout...');
+    window.FlutterwaveCheckout({
+      PBFPubKey: config.public_key, // Flutterwave expects PBFPubKey, not public_key
+      tx_ref: config.tx_ref,
+      amount: config.amount,
+      currency: config.currency,
+      payment_options: config.payment_options,
+      customer: config.customer,
+      customizations: config.customizations,
+      callback: config.callback,
+      onclose: config.onclose,
+    });
+    console.log('FlutterwaveCheckout called successfully');
+  } catch (error) {
+    console.error('Error calling FlutterwaveCheckout:', error);
+    throw error;
+  }
 };
 
