@@ -16,4 +16,3 @@ END $$;
 -- Create index for faster queries on transaction reference
 CREATE INDEX IF NOT EXISTS idx_consultation_purchases_tx_ref ON consultation_purchases(tx_ref);
 CREATE INDEX IF NOT EXISTS idx_consultation_purchases_transaction_id ON consultation_purchases(transaction_id);
-

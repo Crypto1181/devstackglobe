@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { initializeFlutterwave, makePayment } from '@/lib/flutterwave';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 // Flutterwave Configuration
 const FLUTTERWAVE_PUBLIC_KEY = 'Hh7ZS03ZS9tKLi5CVZVSdVw3917oyxxY';
@@ -19,8 +19,8 @@ export default function Cart() {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [isInitializing, setIsInitializing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const modalOpenedRef = useRef(false);
 
   // Initialize Flutterwave on component mount
   useEffect(() => {
@@ -46,10 +46,25 @@ export default function Cart() {
       setIsProcessing(true);
 
       // Ensure Flutterwave is initialized
-      await initializeFlutterwave();
-      
-      // Wait a bit for Flutterwave to be fully ready
-      await new Promise(resolve => setTimeout(resolve, 500));
+      try {
+        await initializeFlutterwave();
+        
+        // Wait a bit for Flutterwave to be fully ready
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Check if Flutterwave is actually loaded
+        if (!window.FlutterwaveCheckout) {
+          throw new Error('Flutterwave script failed to load. Please refresh the page and try again.');
+        }
+      } catch (initError: any) {
+        setIsProcessing(false);
+        toast({
+          title: 'Payment Error',
+          description: initError.message || 'Failed to load payment gateway. Please refresh and try again.',
+          variant: 'destructive',
+        });
+        return;
+      }
 
       // Generate unique transaction reference
       const txRef = `DSG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -58,90 +73,131 @@ export default function Cart() {
       const userEmail = user.email || '';
       const userName = user.user_metadata?.full_name || userEmail.split('@')[0] || 'Customer';
 
-      // Prepare payment configuration
-      makePayment({
-        public_key: FLUTTERWAVE_PUBLIC_KEY,
-        tx_ref: txRef,
-        amount: totalPrice,
-        currency: 'USD',
-        payment_options: 'card,ussd,mobilemoney,banktransfer',
-        customer: {
-          email: userEmail,
-          phone_number: user.user_metadata?.phone || '',
-          name: userName,
-        },
-        customizations: {
-          title: 'DevStackGlobe',
-          description: `Payment for ${items.length} item(s)`,
-          logo: window.location.origin + '/favicon.svg',
-        },
-        callback: async (response: any) => {
+      // Validate required fields
+      if (!userEmail) {
+        setIsProcessing(false);
+        toast({
+          title: 'Payment Error',
+          description: 'Email is required for payment. Please update your profile.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Set a timeout to reset processing state if modal doesn't open
+      modalOpenedRef.current = false;
+      const timeoutId = setTimeout(() => {
+        if (!modalOpenedRef.current) {
           setIsProcessing(false);
-          
-          if (response.status === 'successful') {
-            try {
-              // Save consultation purchases to database
-              const consultationItems = items.filter(item => item.type === 'consultation');
-              
-              if (consultationItems.length > 0) {
-                const purchases = consultationItems.map(item => {
-                  const consultationType = item.name.includes('Product Support') ? 'product' : 'general';
-                  return {
-                    user_id: user.id,
-                    consultation_type: consultationType,
-                    amount: item.price,
-                    status: 'completed',
-                    transaction_id: response.transaction_id,
-                    tx_ref: txRef,
-                  };
-                });
-
-                const { error } = await supabase
-                  .from('consultation_purchases')
-                  .insert(purchases);
-
-                if (error) {
-                  console.error('Error saving consultation purchase:', error);
-                }
-              }
-
-              toast({
-                title: 'Payment Successful!',
-                description: 'Your order has been processed. Thank you for your purchase!',
-              });
-
-              // Clear cart after successful checkout
-              clearCart();
-              
-              // Redirect to contact page
-              navigate('/contact');
-            } catch (error: any) {
-              console.error('Error processing payment callback:', error);
-              toast({
-                title: 'Payment Successful',
-                description: 'Payment completed but there was an error saving your order details.',
-              });
-            }
-          } else {
-            toast({
-              title: 'Payment Failed',
-              description: 'Payment was not successful. Please try again.',
-              variant: 'destructive',
-            });
-          }
-        },
-        onclose: () => {
-          setIsProcessing(false);
-          // User closed the payment modal without completing payment
           toast({
-            title: 'Payment Cancelled',
-            description: 'Payment was cancelled. You can try again when ready.',
+            title: 'Payment Timeout',
+            description: 'Payment modal did not open. Please try again.',
             variant: 'destructive',
           });
-        },
-      });
+        }
+      }, 5000);
+
+      // Prepare payment configuration
+      try {
+        modalOpenedRef.current = true;
+        makePayment({
+          public_key: FLUTTERWAVE_PUBLIC_KEY,
+          tx_ref: txRef,
+          amount: totalPrice,
+          currency: 'USD',
+          payment_options: 'card,ussd,mobilemoney,banktransfer',
+          customer: {
+            email: userEmail,
+            phone_number: user.user_metadata?.phone || '',
+            name: userName,
+          },
+          customizations: {
+            title: 'DevStackGlobe',
+            description: `Payment for ${items.length} item(s)`,
+            logo: window.location.origin + '/favicon.svg',
+          },
+          callback: async (response: any) => {
+            clearTimeout(timeoutId);
+            modalOpenedRef.current = false;
+            setIsProcessing(false);
+            
+            if (response.status === 'successful') {
+              try {
+                // Save consultation purchases to database
+                const consultationItems = items.filter(item => item.type === 'consultation');
+                
+                if (consultationItems.length > 0) {
+                  const purchases = consultationItems.map(item => {
+                    const consultationType = item.name.includes('Product Support') ? 'product' : 'general';
+                    return {
+                      user_id: user.id,
+                      consultation_type: consultationType,
+                      amount: item.price,
+                      status: 'completed',
+                      transaction_id: response.transaction_id,
+                      tx_ref: txRef,
+                    };
+                  });
+
+                  const { error } = await supabase
+                    .from('consultation_purchases')
+                    .insert(purchases);
+
+                  if (error) {
+                    console.error('Error saving consultation purchase:', error);
+                  }
+                }
+
+                toast({
+                  title: 'Payment Successful!',
+                  description: 'Your order has been processed. Thank you for your purchase!',
+                });
+
+                // Clear cart after successful checkout
+                clearCart();
+                
+                // Redirect to contact page
+                navigate('/contact');
+              } catch (error: any) {
+                console.error('Error processing payment callback:', error);
+                toast({
+                  title: 'Payment Successful',
+                  description: 'Payment completed but there was an error saving your order details.',
+                });
+              }
+            } else {
+              toast({
+                title: 'Payment Failed',
+                description: 'Payment was not successful. Please try again.',
+                variant: 'destructive',
+              });
+            }
+          },
+          onclose: () => {
+            clearTimeout(timeoutId);
+            modalOpenedRef.current = false;
+            setIsProcessing(false);
+            // User closed the payment modal without completing payment
+            toast({
+              title: 'Payment Cancelled',
+              description: 'Payment was cancelled. You can try again when ready.',
+              variant: 'destructive',
+            });
+          },
+        });
+      } catch (paymentError: any) {
+        clearTimeout(timeoutId);
+        setIsProcessing(false);
+        console.error('Payment error:', paymentError);
+        toast({
+          title: 'Payment Error',
+          description: paymentError.message || 'Failed to open payment modal. Please try again.',
+          variant: 'destructive',
+        });
+      }
     } catch (error: any) {
       setIsProcessing(false);
+      console.error('Checkout error:', error);
       toast({
         title: 'Payment Error',
         description: error.message || 'Failed to initialize payment. Please try again.',
