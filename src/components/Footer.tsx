@@ -28,9 +28,9 @@ const socialLinks = [
   { icon: Linkedin, label: 'LinkedIn', href: '#', color: '#0A66C2' },
   { icon: Twitter, label: 'Twitter', href: '#', color: '#1DA1F2' },
   { icon: Facebook, label: 'Facebook', href: '#', color: '#0866FF' },
-  { icon: Instagram, label: 'Instagram', href: '#', color: '#E4405F', gradient: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)' },
-  { icon: TikTokIcon, label: 'TikTok', href: '#', color: '#FE2C55' },
-  { icon: Send, label: 'Telegram', href: '#', color: '#229ED9' },
+  { icon: Instagram, label: 'Instagram', href: 'https://www.instagram.com/mobileappdevelopment3?igsh=MXhnZDMwcGZ3M3hneQ==', color: '#E4405F', gradient: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)' },
+  { icon: TikTokIcon, label: 'TikTok', href: 'https://www.tiktok.com/@mobile_appdeveloper?_r=1&_t=ZN-92tZmusCdKY', color: '#FE2C55' },
+  { icon: Send, label: 'Telegram', href: 'https://t.me/Mobileapptec', color: '#229ED9' },
 ];
 
 const contactInfo = [
@@ -95,6 +95,8 @@ export default function Footer() {
                 <a
                   key={link.label}
                   href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`p-3 rounded-lg transition-all group ${
                     link.label === 'Instagram' && link.gradient
                       ? 'bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] hover:opacity-90'
