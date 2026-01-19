@@ -130,7 +130,7 @@ export default function Index() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight"
+            className="font-display text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
           >
             We bring your{' '}
             <span className="text-gradient">ideas and innovation dreams</span>{' '}
@@ -141,7 +141,7 @@ export default function Index() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-lg md:text-xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed"
+            className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed px-2"
           >
             We are a full-stack development team of over 36 highly skilled professionals, each an expert in their respective domain. With our strong technical foundation and streamlined workflow, timelines are never a concern. We specialize in delivering complex, feature-rich projects efficiently successfully developed, tested, and launched within 30 days (4 weeks).
             <br /><br />
@@ -204,10 +204,10 @@ export default function Index() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
               What Our <span className="text-gradient">Clients Say</span>
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
               Trusted by developers and businesses worldwide
             </p>
           </motion.div>
@@ -236,12 +236,12 @@ export default function Index() {
                   ))}
                 </div>
 
-                <blockquote className="text-xl md:text-2xl font-medium text-center mb-6 leading-relaxed">
+                <blockquote className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-center mb-6 leading-relaxed px-2">
                   "{reviews[currentReviewIndex].review_text}"
                 </blockquote>
 
                 <div className="text-center">
-                  <p className="font-semibold text-lg mb-1">
+                  <p className="font-semibold text-base sm:text-lg mb-1">
                     {reviews[currentReviewIndex].reviewer_name}
                   </p>
                   {(reviews[currentReviewIndex].company || reviews[currentReviewIndex].role) && (
