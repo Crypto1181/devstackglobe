@@ -24,10 +24,10 @@ const navLinks = [
 ];
 
 const socialLinks = [
-  { icon: Github, label: 'GitHub', href: '#', color: '#ffffff' },
+  { icon: Github, label: 'GitHub', href: 'https://github.com/Crypto1181', color: '#ffffff' },
   { icon: Linkedin, label: 'LinkedIn', href: '#', color: '#0A66C2' },
   { icon: Twitter, label: 'Twitter', href: '#', color: '#1DA1F2' },
-  { icon: Facebook, label: 'Facebook', href: '#', color: '#0866FF' },
+  { icon: Facebook, label: 'Facebook', href: 'https://www.facebook.com/share/171W3upXmU/', color: '#0866FF' },
   { icon: Instagram, label: 'Instagram', href: 'https://www.instagram.com/mobileappdevelopment3?igsh=MXhnZDMwcGZ3M3hneQ==', color: '#E4405F', gradient: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)' },
   { icon: TikTokIcon, label: 'TikTok', href: 'https://www.tiktok.com/@mobile_appdeveloper?_r=1&_t=ZN-92tZmusCdKY', color: '#FE2C55' },
   { icon: Send, label: 'Telegram', href: 'https://t.me/Mobileapptec', color: '#229ED9' },
