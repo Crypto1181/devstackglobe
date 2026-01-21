@@ -54,14 +54,14 @@ export default function Cart() {
         console.log('Flutterwave script loaded');
         
         // Wait a bit for Flutterwave to be fully ready
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // Check if Flutterwave is actually loaded
         if (!window.FlutterwaveCheckout) {
           console.error('FlutterwaveCheckout not available after loading');
           throw new Error('Flutterwave script failed to load. Please refresh the page and try again.');
         }
-        console.log('FlutterwaveCheckout is available');
+        console.log('FlutterwaveCheckout is available:', typeof window.FlutterwaveCheckout);
       } catch (initError: any) {
         console.error('Flutterwave initialization error:', initError);
         setIsProcessing(false);
@@ -115,6 +115,8 @@ export default function Cart() {
         });
         
         modalOpenedRef.current = true;
+        
+        // Call makePayment - this should open the Flutterwave modal
         makePayment({
           public_key: FLUTTERWAVE_PUBLIC_KEY,
           tx_ref: txRef,
@@ -208,7 +210,7 @@ export default function Cart() {
         console.error('Payment error:', paymentError);
         toast({
           title: 'Payment Error',
-          description: paymentError.message || 'Failed to open payment modal. Please try again.',
+          description: paymentError.message || 'Failed to open payment modal. Please check if popup blockers are enabled and try again.',
           variant: 'destructive',
         });
       }
