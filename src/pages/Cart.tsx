@@ -10,11 +10,11 @@ import { initializeFlutterwave, makePayment } from '@/lib/flutterwave';
 import { useEffect, useState, useRef } from 'react';
 
 // Flutterwave Configuration
-// Using V4 API keys from dashboard
-// For v3.js script, we need to use PBFPubKey format
-const FLUTTERWAVE_PUBLIC_KEY = 'Hh7ZS03ZS9tKLi5CVZVSdVw39170yxxY'; // Client Secret from V4 dashboard (corrected)
-const FLUTTERWAVE_CLIENT_ID = '9a0edb63-a73d-49f5-ba45-ed0e65840960';
-const FLUTTERWAVE_ENCRYPTION_KEY = 'vjO+KVabmDNT+5mCuB7u19qj1CKNLFDshPSO+dUonlk='; // Corrected from dashboard
+// Using V3 API keys from dashboard
+// For v3.js script, we use PBFPubKey format with V3 public key
+const FLUTTERWAVE_PUBLIC_KEY = 'FLWPUBK-94817d310c5724c3b6c0355ba78a9602-X'; // V3 Public key
+const FLUTTERWAVE_SECRET_KEY = 'FLWSECK-67ccf774f7e9be9a447c8ee12a74a289-19bdf7f52dfvt-X'; // V3 Secret key (for backend verification)
+const FLUTTERWAVE_ENCRYPTION_KEY = '67ccf774f7e9a075bb93410d'; // V3 Encryption key
 
 export default function Cart() {
   const { items, removeFromCart, updateQuantity, clearCart, totalPrice } = useCart();
