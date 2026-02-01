@@ -34,9 +34,8 @@ const socialLinks = [
 ];
 
 const contactInfo = [
-  { icon: Mail, label: 'Email', value: 'hello@devstackglobe.com' },
+  { icon: Mail, label: 'Email', value: 'Kendclivent@gmail.com' },
   { icon: MapPin, label: 'Location', value: 'San Francisco, CA' },
-  { icon: Phone, label: 'Phone', value: '+1 (555) 123-4567' },
 ];
 
 export default function Footer() {

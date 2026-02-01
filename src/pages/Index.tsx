@@ -143,11 +143,11 @@ export default function Index() {
             transition={{ delay: 0.4 }}
             className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed px-2"
           >
-            We are a full-stack development team of over 36 highly skilled professionals, each an expert in their respective domain. With our strong technical foundation and streamlined workflow, timelines are never a concern. We specialize in delivering complex, feature-rich projects efficiently successfully developed, tested, and launched within 30 days (4 weeks).
+            We are a team of 36+ expert developers specializing in full-stack development. Our streamlined workflow ensures we deliver complex, feature-rich projects—developed, tested, and launched within 30 days.
             <br /><br />
-            Our proven track record reflects years of successful project delivery across multiple industries. Partner with us to experience reliable execution, high-quality results, and on-time delivery.
+            With years of proven success across multiple industries, we guarantee reliable execution, high-quality results, and on-time delivery.
             <br /><br />
-            Sign up to learn more we look forward to working with you.
+            Sign up to learn more. We look forward to working with you.
           </motion.p>
 
           <motion.div
@@ -160,11 +160,6 @@ export default function Index() {
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-6 text-lg group glow-primary">
                 Get Started Free
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <Link to="/portfolio">
-              <Button size="lg" variant="outline" className="border-border/50 hover:bg-muted/50 font-semibold px-8 py-6 text-lg">
-                View Portfolio
               </Button>
             </Link>
           </motion.div>
