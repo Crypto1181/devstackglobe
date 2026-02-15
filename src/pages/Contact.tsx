@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Mail, MapPin, Phone, Github, Linkedin, Twitter, Facebook, Instagram } from 'lucide-react';
+import { Send, Mail, MapPin, Github, Linkedin, Twitter, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,24 +15,30 @@ const TikTokIcon = ({ className, style }: { className?: string; style?: React.CS
     style={style}
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
   </svg>
 );
 
 const contactInfo = [
-  { icon: Mail, label: 'Email', value: 'hello@devstackglobe.com' },
+  { icon: Mail, label: 'Email', value: 'Kendclivent@gmail.com' },
   { icon: MapPin, label: 'Location', value: 'San Francisco, CA' },
-  { icon: Phone, label: 'Phone', value: '+1 (555) 123-4567' },
 ];
 
 const socialLinks = [
-  { icon: Github, label: 'GitHub', href: '#', color: '#ffffff' },
+  { icon: Github, label: 'GitHub', href: 'https://github.com/Crypto1181', color: '#ffffff' },
   { icon: Linkedin, label: 'LinkedIn', href: '#', color: '#0A66C2' },
   { icon: Twitter, label: 'Twitter', href: '#', color: '#1DA1F2' },
-  { icon: Facebook, label: 'Facebook', href: '#', color: '#0866FF' },
-  { icon: Instagram, label: 'Instagram', href: '#', color: '#E4405F', gradient: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)' },
-  { icon: TikTokIcon, label: 'TikTok', href: '#', color: '#FE2C55' },
-  { icon: Send, label: 'Telegram', href: '#', color: '#229ED9' },
+  { icon: Facebook, label: 'Facebook', href: 'https://www.facebook.com/share/171W3upXmU/', color: '#0866FF' },
+  {
+    icon: Instagram,
+    label: 'Instagram',
+    href: 'https://www.instagram.com/mobileappdevelopment3?igsh=MXhnZDMwcGZ3M3hneQ==',
+    color: '#E4405F',
+    gradient:
+      'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+  },
+  { icon: TikTokIcon, label: 'TikTok', href: 'https://www.tiktok.com/@mobile_appdeveloper?_r=1&_t=ZN-92tZmusCdKY', color: '#FE2C55' },
+  { icon: Send, label: 'Telegram', href: 'https://t.me/Mobileapptec', color: '#229ED9' },
 ];
 
 export default function Contact() {
@@ -174,6 +180,8 @@ export default function Contact() {
                   <a
                     key={link.label}
                     href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className={`p-4 rounded-lg transition-all group ${
                       link.label === 'Instagram' && link.gradient
                         ? 'bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] hover:opacity-90'
@@ -184,21 +192,21 @@ export default function Contact() {
                     aria-label={link.label}
                   >
                     {link.label === 'Instagram' && link.gradient ? (
-                      <link.icon 
-                        className="w-6 h-6 group-hover:scale-110 transition-transform text-white" 
+                      <link.icon
+                        className="w-6 h-6 group-hover:scale-110 transition-transform text-white"
                       />
                     ) : link.label === 'GitHub' ? (
-                      <link.icon 
-                        className="w-6 h-6 group-hover:scale-110 transition-transform text-white" 
+                      <link.icon
+                        className="w-6 h-6 group-hover:scale-110 transition-transform text-white"
                       />
                     ) : link.label === 'TikTok' ? (
-                      <link.icon 
-                        className="w-6 h-6 group-hover:scale-110 transition-transform" 
+                      <link.icon
+                        className="w-6 h-6 group-hover:scale-110 transition-transform"
                         style={{ color: link.color }}
                       />
                     ) : (
-                      <link.icon 
-                        className="w-6 h-6 group-hover:scale-110 transition-transform" 
+                      <link.icon
+                        className="w-6 h-6 group-hover:scale-110 transition-transform"
                         style={{ color: link.color }}
                       />
                     )}
