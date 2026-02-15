@@ -132,8 +132,8 @@ export default function Index() {
             transition={{ delay: 0.3 }}
             className="font-display text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
           >
-            We bring your{' '}
-            <span className="text-gradient">ideas and innovation dreams</span>{' '}
+            Bringing{' '}
+            <span className="text-gradient">innovative ideas</span>{' '}
             to reality
           </motion.h1>
 
@@ -143,11 +143,7 @@ export default function Index() {
             transition={{ delay: 0.4 }}
             className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed px-2"
           >
-            We are a team of 36+ expert developers specializing in full-stack development. Our streamlined workflow ensures we deliver complex, feature-rich projects—developed, tested, and launched within 30 days.
-            <br /><br />
-            With years of proven success across multiple industries, we guarantee reliable execution, high-quality results, and on-time delivery.
-            <br /><br />
-            Sign up to learn more. We look forward to working with you.
+            36+ full-stack experts delivering production-ready products in under 30 days. Proven across industries with reliable, on-time results. Let&apos;s build your next project.
           </motion.p>
 
           <motion.div
